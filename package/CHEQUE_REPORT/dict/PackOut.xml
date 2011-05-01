@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<adempiereAD Name="CHEQUE_REPORT" Version="1.00" CompVer="Release 3.3.0" DataBase="1.00" Description="Cheque Report for Payment Selection" creator="pasuwatw@gmail.com" creatorcontact="pasuwatw@gmail.com" createddate="2011-04-23 16:37:12" updateddate="2011-04-23 16:37:12" PackOutVer="005">
+    <process AD_Process_ID="80000" Name="Print Cheque" ADWorkflowNameID="" ADProcessNameID="Print Cheque" ADPrintFormatNameID="" ADReportViewNameID="" AccessLevel="3" Classname="" Description="Print Cheque" EntityType="U" Help="" isBetaFunctionality="false" isDirectPrint="false" isReport="true" isActive="true" ProcedureName="" StatisticCount="0" StatisticSeconds="0" Value="cheque" WorkflowValue="" ShowHelp="Y" JasperReport="attachment:cheque.jrxml"/>
+</adempiereAD>
