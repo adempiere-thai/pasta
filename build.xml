@@ -1,0 +1,91 @@
+<project name="absolute" default="jar" basedir=".">
+	<description>
+	    This buildfile is used to build the extend subproject within 
+	    the Adempiere project.
+	  </description>
+
+	<!-- set global properties for this build -->
+	<property name="base.src" value="base/src"/>
+	<property name="jasper.src" value="JasperReports/src"/>
+	<property name="build.dir" value="build"/>
+	<property name="dist.dir" value="."/>
+	<property name="jar.name" value="customization"/>
+	<property name="adempiere.base.project" value="adempiere360lts"/>
+
+	<!-- set path to include the necessary jar files for javac -->
+	<path id="project.class.path">
+		<pathelement path="${classpath}"/>
+		<pathelement path="../${adempiere.base.project}/lib/CCTools.jar"/>
+		<pathelement path="../${adempiere.base.project}/lib/jboss.jar"/>
+		<pathelement path="../${adempiere.base.project}/base/build"/>
+		<pathelement path="../${adempiere.base.project}/tools/lib/junit.jar"/>
+		<pathelement path="../${adempiere.base.project}/adempiere/Adempiere/lib/Adempiere.jar" />
+		<fileset dir="../${adempiere.base.project}/tools/lib/testing/">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="init" description="initialization target">
+		<echo message="=========== Build Base"/>
+		<!-- create the time stamp -->
+		<tstamp/>
+		<!-- create the build directory structure used by compile -->
+		<mkdir dir="${build.dir}"/>
+		<!-- check for the distribution directory -->
+		<available file="${dist.dir}" type="dir" property="dist.dir.exists"/>
+	</target>
+
+	<target name="makedir" depends="init" unless="dist.dir.exists">
+		<!-- create the distribution directory if not available -->
+		<mkdir dir="${dist.dir}"/>
+	</target>
+
+	<target name="compile" depends="makedir">
+		<javac target="1.6" fork="true" destdir="${build.dir}" deprecation="on" debug="on" memoryinitialsize="512m" memorymaximumsize="512m">
+			<src path="${base.src}"/>
+			<src path="${jasper.src}"/>
+			<classpath>
+				<pathelement path="${classpath}"/>
+				<pathelement path="../${adempiere.base.project}/client/build"/>
+				<pathelement path="../${adempiere.base.project}/base/Base.jar"/>
+				<pathelement path="../${adempiere.base.project}/extend/Extend.jar"/>
+				<pathelement path="../${adempiere.base.project}/lib/CSTools.jar"/>
+				<pathelement path="../${adempiere.base.project}/lib/oracle.jar"/>
+				<pathelement path="../${adempiere.base.project}/JasperReportsTools/lib/jasperreports-3.7.6.jar"/>
+				<pathelement path="../${adempiere.base.project}/JasperReportsTools/lib/commons-digester-1.7.jar"/>
+				<pathelement path="../${adempiere.base.project}/tools/lib/commons-logging.jar"/>
+				<pathelement path="../${adempiere.base.project}/JasperReportsTools/lib/commons-beanutils-1.7.jar"/>
+				<pathelement path="../${adempiere.base.project}/tools/lib/xercesImpl.jar"/>
+				<pathelement path="../${adempiere.base.project}/tools/lib/xml-apis.jar"/>
+				<pathelement path="../${adempiere.base.project}/tools/lib/postgresql.jar"/>
+				<pathelement path="../${adempiere.base.project}/tools/lib/iText-2.1.7.jar"/>
+				<fileset dir="../${adempiere.base.project}/jboss/client" includes="*.jar"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="movefile" depends="compile">
+		<copy todir="${build.dir}">
+			<fileset dir="${jasper.src}">
+				<exclude name="**/org/pasta/util/jasper/*.java"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="clear">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="jar" depends="clear,movefile">
+		<jar jarfile="${dist.dir}/lib/${jar.name}.jar"
+			  excludes="**/*.jbx"
+			  index="yes">
+			<fileset dir="${build.dir}"/>
+			<manifest>
+				<attribute name="Implementation-Title" value="Absolute"/>
+				<attribute name="Implementation-Version" value="618"/>
+				<attribute name="Implementation-Vendor" value="Pasta"/>
+			</manifest>
+		</jar>
+	</target>
+</project>
