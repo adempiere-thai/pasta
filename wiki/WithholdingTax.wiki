@@ -1,0 +1,9 @@
+Withholding Tax
+
+1. Withholding Tax Transaction
+  1.1 Withholding Tax Revenue Type (Window) (100%)
+
+  1.2 Withholding Tax Transaction  (100%)
+2. Payment Modification
+  2.1 Case Invoice / Bill Acceptance Payment
+  2.2 Case Charge Payment
