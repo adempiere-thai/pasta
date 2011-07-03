@@ -19,6 +19,8 @@
 || 5||การจ่ายเงินได้ที่ต้องหักภาษี ณ ที่จ่าย ตามคำสั่งกรมสรรพากรที่ออกตาม มาตรา 3 เตรส ||
 || 6||อื่นๆ ||
 
+หน้าจอ
+<img src="http://www.adempiere-thai.net/wp-content/uploads/2011/07/ประเภทเงินได้.png">
   <h3>1.2 Withholding Tax Transaction  (100%)</h3>
 </p>
 <p>
