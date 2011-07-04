@@ -1,0 +1,20 @@
+Modify View Allocation 
+- Create Withholding Tax Amount In View Allocation Header
+
+Modify Payment for Withholding Tax
+
+1. Create Column In Withholding Tax Transaction for C_Payment_ID
+2. Create Column ToalPaymentAmt
+2. Create Column Withholding Tax Amount for Payment
+3. Create Column CreateLine in Payment for Multiple Withholding Tax Selection (Look like Create Line From btn)
+4. Create New Field Group Tab for List the Withholding Tax of the Payment.
+5. Complete Process Should Be Update Withholding Tax Amount to View Allocation.
+
+Modify Payment account posting 
+case charge should post withholding tax
+
+Modify View Allocation Account Posting
+for Withholding Tax.
+
+Modify Bank Statement
+1. Statement Should Be Minus From Withholding Tax
