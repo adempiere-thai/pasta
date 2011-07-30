@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/css" href="adempiereDocument.css"?>
+
+<adempiereDocument>
+    <header>jobsorder Package Description</header>
+    <H1>Package Name:</H1>
+    <packagename>jobsorder</packagename>
+    <H1>Creator:</H1>
+    <creator>pasuwat.w@isec-inc.com</creator>
+    <H1>Email Address:</H1>
+    <creatorcontact>pasuwat.w@isec-inc.com</creatorcontact>
+    <H1>Created:</H1>
+    <createddate>2011-07-24 13:19:07</createddate>
+    <H1>Updated:</H1>
+    <updateddate>2011-07-24 13:19:07</updateddate>
+    <H1>Description:</H1>
+    <description>This package created for for Jobs Order module.</description>
+    <H1>Instructions:</H1>
+    <instructions>This package created for for Jobs Order module.</instructions>
+    <H1>Files in Package:</H1>
+    <file>File: PackOut.xml</file>
+    <filedirectory>Directory: \dict\</filedirectory>
+    <filenotes>Notes: Contains all application/object settings for package</filenotes>
+</adempiereDocument>
