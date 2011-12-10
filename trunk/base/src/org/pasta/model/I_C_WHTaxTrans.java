@@ -63,6 +63,21 @@ public interface I_C_WHTaxTrans
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name AD_Table_ID */
+    public static final String COLUMNNAME_AD_Table_ID = "AD_Table_ID";
+
+	/** Set Table.
+	  * Database Table information
+	  */
+	public void setAD_Table_ID (int AD_Table_ID);
+
+	/** Get Table.
+	  * Database Table information
+	  */
+	public int getAD_Table_ID();
+
+	public I_AD_Table getAD_Table() throws RuntimeException;
+
     /** Column name ActualTaxAddress */
     public static final String COLUMNNAME_ActualTaxAddress = "ActualTaxAddress";
 
@@ -201,6 +216,32 @@ public interface I_C_WHTaxTrans
 	/** Get Phor Ngor Dor Type	  */
 	public String getPNDType();
 
+    /** Column name Processed */
+    public static final String COLUMNNAME_Processed = "Processed";
+
+	/** Set Processed.
+	  * The document has been processed
+	  */
+	public void setProcessed (boolean Processed);
+
+	/** Get Processed.
+	  * The document has been processed
+	  */
+	public boolean isProcessed();
+
+    /** Column name Record_ID */
+    public static final String COLUMNNAME_Record_ID = "Record_ID";
+
+	/** Set Record ID.
+	  * Direct internal record ID
+	  */
+	public void setRecord_ID (int Record_ID);
+
+	/** Get Record ID.
+	  * Direct internal record ID
+	  */
+	public int getRecord_ID();
+
     /** Column name SeqNo */
     public static final String COLUMNNAME_SeqNo = "SeqNo";
 
@@ -229,6 +270,19 @@ public interface I_C_WHTaxTrans
 	  */
 	public String getTaxID();
 
+    /** Column name TotalAmt */
+    public static final String COLUMNNAME_TotalAmt = "TotalAmt";
+
+	/** Set Total Amount.
+	  * Total Amount
+	  */
+	public void setTotalAmt (BigDecimal TotalAmt);
+
+	/** Get Total Amount.
+	  * Total Amount
+	  */
+	public BigDecimal getTotalAmt();
+
     /** Column name Updated */
     public static final String COLUMNNAME_Updated = "Updated";
 
@@ -244,6 +298,15 @@ public interface I_C_WHTaxTrans
 	  * User who updated this records
 	  */
 	public int getUpdatedBy();
+
+    /** Column name WHTCertifiedStatus */
+    public static final String COLUMNNAME_WHTCertifiedStatus = "WHTCertifiedStatus";
+
+	/** Set Withholding Status	  */
+	public void setWHTCertifiedStatus (String WHTCertifiedStatus);
+
+	/** Get Withholding Status	  */
+	public String getWHTCertifiedStatus();
 
     /** Column name WHTaxType */
     public static final String COLUMNNAME_WHTaxType = "WHTaxType";
@@ -262,4 +325,22 @@ public interface I_C_WHTaxTrans
 
 	/** Get Withholding Tax Type Other	  */
 	public String getWHTaxTypeOthers();
+
+    /** Column name WithholdingAction */
+    public static final String COLUMNNAME_WithholdingAction = "WithholdingAction";
+
+	/** Set Withholding Action	  */
+	public void setWithholdingAction (String WithholdingAction);
+
+	/** Get Withholding Action	  */
+	public String getWithholdingAction();
+
+    /** Column name WithholdingAmt */
+    public static final String COLUMNNAME_WithholdingAmt = "WithholdingAmt";
+
+	/** Set Witholding Amount	  */
+	public void setWithholdingAmt (BigDecimal WithholdingAmt);
+
+	/** Get Witholding Amount	  */
+	public BigDecimal getWithholdingAmt();
 }
