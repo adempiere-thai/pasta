@@ -17,10 +17,12 @@
 /** Generated Model - DO NOT CHANGE */
 package org.pasta.model;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
 import org.compiere.model.*;
+import org.compiere.util.Env;
 import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_WHTaxTrans
@@ -32,7 +34,7 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20110501L;
+	private static final long serialVersionUID = 20110904L;
 
     /** Standard Constructor */
     public X_C_WHTaxTrans (Properties ctx, int C_WHTaxTrans_ID, String trxName)
@@ -49,6 +51,8 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 			setPNDType (null);
 			setWHTaxType (null);
 // 1
+			setWithholdingAction (null);
+// PR
         } */
     }
 
@@ -79,6 +83,34 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
         .append(get_ID()).append("]");
       return sb.toString();
     }
+
+	public I_AD_Table getAD_Table() throws RuntimeException
+    {
+		return (I_AD_Table)MTable.get(getCtx(), I_AD_Table.Table_Name)
+			.getPO(getAD_Table_ID(), get_TrxName());	}
+
+	/** Set Table.
+		@param AD_Table_ID 
+		Database Table information
+	  */
+	public void setAD_Table_ID (int AD_Table_ID)
+	{
+		if (AD_Table_ID < 1) 
+			set_Value (COLUMNNAME_AD_Table_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_Table_ID, Integer.valueOf(AD_Table_ID));
+	}
+
+	/** Get Table.
+		@return Database Table information
+	  */
+	public int getAD_Table_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Table_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
 
 	/** Set Tax Address.
 		@param ActualTaxAddress 
@@ -260,6 +292,53 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 		return (String)get_Value(COLUMNNAME_PNDType);
 	}
 
+	/** Set Processed.
+		@param Processed 
+		The document has been processed
+	  */
+	public void setProcessed (boolean Processed)
+	{
+		set_ValueNoCheck (COLUMNNAME_Processed, Boolean.valueOf(Processed));
+	}
+
+	/** Get Processed.
+		@return The document has been processed
+	  */
+	public boolean isProcessed () 
+	{
+		Object oo = get_Value(COLUMNNAME_Processed);
+		if (oo != null) 
+		{
+			 if (oo instanceof Boolean) 
+				 return ((Boolean)oo).booleanValue(); 
+			return "Y".equals(oo);
+		}
+		return false;
+	}
+
+	/** Set Record ID.
+		@param Record_ID 
+		Direct internal record ID
+	  */
+	public void setRecord_ID (int Record_ID)
+	{
+		if (Record_ID < 0) 
+			set_Value (COLUMNNAME_Record_ID, null);
+		else 
+			set_Value (COLUMNNAME_Record_ID, Integer.valueOf(Record_ID));
+	}
+
+	/** Get Record ID.
+		@return Direct internal record ID
+	  */
+	public int getRecord_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_Record_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
 	/** Set Sequence.
 		@param SeqNo 
 		Method of ordering records; lowest number comes first
@@ -297,6 +376,48 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 		return (String)get_Value(COLUMNNAME_TaxID);
 	}
 
+	/** Set Total Amount.
+		@param TotalAmt 
+		Total Amount
+	  */
+	public void setTotalAmt (BigDecimal TotalAmt)
+	{
+		throw new IllegalArgumentException ("TotalAmt is virtual column");	}
+
+	/** Get Total Amount.
+		@return Total Amount
+	  */
+	public BigDecimal getTotalAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_TotalAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
+	}
+
+	/** WHTCertifiedStatus AD_Reference_ID=80003 */
+	public static final int WHTCERTIFIEDSTATUS_AD_Reference_ID=80003;
+	/** Draft = DR */
+	public static final String WHTCERTIFIEDSTATUS_Draft = "DR";
+	/** Prepared = PR */
+	public static final String WHTCERTIFIEDSTATUS_Prepared = "PR";
+	/** Used = US */
+	public static final String WHTCERTIFIEDSTATUS_Used = "US";
+	/** Set Withholding Status.
+		@param WHTCertifiedStatus Withholding Status	  */
+	public void setWHTCertifiedStatus (String WHTCertifiedStatus)
+	{
+
+		set_Value (COLUMNNAME_WHTCertifiedStatus, WHTCertifiedStatus);
+	}
+
+	/** Get Withholding Status.
+		@return Withholding Status	  */
+	public String getWHTCertifiedStatus () 
+	{
+		return (String)get_Value(COLUMNNAME_WHTCertifiedStatus);
+	}
+
 	/** Set Withholding Tax Type.
 		@param WHTaxType Withholding Tax Type	  */
 	public void setWHTaxType (String WHTaxType)
@@ -323,5 +444,42 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 	public String getWHTaxTypeOthers () 
 	{
 		return (String)get_Value(COLUMNNAME_WHTaxTypeOthers);
+	}
+
+	/** WithholdingAction AD_Reference_ID=80004 */
+	public static final int WITHHOLDINGACTION_AD_Reference_ID=80004;
+	/** Prepared = PR */
+	public static final String WITHHOLDINGACTION_Prepared = "PR";
+	/** Draft = DR */
+	public static final String WITHHOLDINGACTION_Draft = "DR";
+	/** Set Withholding Action.
+		@param WithholdingAction Withholding Action	  */
+	public void setWithholdingAction (String WithholdingAction)
+	{
+
+		set_Value (COLUMNNAME_WithholdingAction, WithholdingAction);
+	}
+
+	/** Get Withholding Action.
+		@return Withholding Action	  */
+	public String getWithholdingAction () 
+	{
+		return (String)get_Value(COLUMNNAME_WithholdingAction);
+	}
+
+	/** Set Witholding Amount.
+		@param WithholdingAmt Witholding Amount	  */
+	public void setWithholdingAmt (BigDecimal WithholdingAmt)
+	{
+		throw new IllegalArgumentException ("WithholdingAmt is virtual column");	}
+
+	/** Get Witholding Amount.
+		@return Witholding Amount	  */
+	public BigDecimal getWithholdingAmt () 
+	{
+		BigDecimal bd = (BigDecimal)get_Value(COLUMNNAME_WithholdingAmt);
+		if (bd == null)
+			 return Env.ZERO;
+		return bd;
 	}
 }

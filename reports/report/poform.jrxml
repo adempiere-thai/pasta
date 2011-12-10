@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="poform" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="com.pasta.util.jasper.Scriptlet"/>
+	<parameter name="RECORD_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select og.name organization_name ,oi.taxid  ,o.documentno ponumber ,o.dateordered , pt.name paymentterm, o.datepromised ,
+       oil.address1 ,oil.address2 , oil.address3 , oil.address4 ,oil.city , oil.postal ,oi.phone , oi.fax ,
+       whl.address1 delivery_address1,whl.address2 delivery_address2, whl.address3 delivery_address3, whl.address4 delivery_address4,whl.city delivery_city, whl.postal delivery_postal ,
+       bp.name as vendor_name ,
+       loc.address1 vendor_address1,loc.address2 vendor_address2, loc.address3 vendor_address3, loc.address4 vendor_address4
+       ,loc.city vendor_city, loc.postal vendor_postal,bpl.phone vendor_phone, bpl.fax vendor_fax
+       , o.dateordered , o.datepromised , ot.taxamt , ot.taxbaseamt , o.grandtotal, o.description remark , t.rate
+       ---- Detail ----------
+       ,pd.name product_name
+       ,pd.value   product_code
+       ,uom.name uom
+       ,ol.qtyentered
+       ,ol.linenetamt
+       ,ol.discount  discount_percent
+       ,ol.pricelist - ol.priceentered discount_amt
+       ,ol.priceentered
+       ,ol.pricelist
+       ,ol.priceactual
+from c_order o
+inner join c_paymentterm pt on o.c_paymentterm_id = pt.c_paymentterm_id
+inner join ad_org og on og.ad_org_id = o.ad_org_id
+inner join ad_orginfo oi on oi.ad_org_id = og.ad_org_id
+left join c_location oil on oil.c_location_id = oi.c_location_id
+inner join m_warehouse wh on wh.m_warehouse_id = o.m_warehouse_id
+left join c_location whl on wh.c_location_id = whl.c_location_id
+inner join c_bpartner bp on bp.c_bpartner_id = o.c_bpartner_id
+inner join c_bpartner_location bpl on bpl.c_bpartner_location_id = o.c_bpartner_location_id
+inner join c_location loc on bpl.c_location_id = loc.c_location_id
+inner join c_orderline ol on o.c_order_id = ol.c_order_id
+left join m_product pd on pd.m_product_id = ol.m_product_id
+left join c_uom uom on uom.c_uom_id = ol.c_uom_id
+left join c_ordertax ot on o.c_order_id = ot.c_order_id
+left join c_tax t on ot.c_tax_id = t.c_tax_id
+where o.ISSOTRX='N'
+AND o.c_order_id = $P{RECORD_ID}]]>
+	</queryString>
+	<field name="ORGANIZATION_NAME" class="java.lang.String"/>
+	<field name="TAXID" class="java.lang.String"/>
+	<field name="PONUMBER" class="java.lang.String"/>
+	<field name="DATEORDERED" class="java.sql.Timestamp"/>
+	<field name="PAYMENTTERM" class="java.lang.String"/>
+	<field name="DATEPROMISED" class="java.sql.Timestamp"/>
+	<field name="ADDRESS1" class="java.lang.String"/>
+	<field name="ADDRESS2" class="java.lang.String"/>
+	<field name="ADDRESS3" class="java.lang.String"/>
+	<field name="ADDRESS4" class="java.lang.String"/>
+	<field name="CITY" class="java.lang.String"/>
+	<field name="POSTAL" class="java.lang.String"/>
+	<field name="PHONE" class="java.lang.String"/>
+	<field name="FAX" class="java.lang.String"/>
+	<field name="DELIVERY_ADDRESS1" class="java.lang.String"/>
+	<field name="DELIVERY_ADDRESS2" class="java.lang.String"/>
+	<field name="DELIVERY_ADDRESS3" class="java.lang.String"/>
+	<field name="DELIVERY_ADDRESS4" class="java.lang.String"/>
+	<field name="DELIVERY_CITY" class="java.lang.String"/>
+	<field name="DELIVERY_POSTAL" class="java.lang.String"/>
+	<field name="VENDOR_NAME" class="java.lang.String"/>
+	<field name="VENDOR_ADDRESS1" class="java.lang.String"/>
+	<field name="VENDOR_ADDRESS2" class="java.lang.String"/>
+	<field name="VENDOR_ADDRESS3" class="java.lang.String"/>
+	<field name="VENDOR_ADDRESS4" class="java.lang.String"/>
+	<field name="VENDOR_CITY" class="java.lang.String"/>
+	<field name="VENDOR_POSTAL" class="java.lang.String"/>
+	<field name="VENDOR_PHONE" class="java.lang.String"/>
+	<field name="VENDOR_FAX" class="java.lang.String"/>
+	<field name="TAXAMT" class="java.math.BigDecimal"/>
+	<field name="TAXBASEAMT" class="java.math.BigDecimal"/>
+	<field name="GRANDTOTAL" class="java.math.BigDecimal"/>
+	<field name="REMARK" class="java.lang.String"/>
+	<field name="RATE" class="java.math.BigDecimal"/>
+	<field name="PRODUCT_NAME" class="java.lang.String"/>
+	<field name="PRODUCT_CODE" class="java.lang.String"/>
+	<field name="UOM" class="java.lang.String"/>
+	<field name="QTYENTERED" class="java.math.BigDecimal"/>
+	<field name="LINENETAMT" class="java.math.BigDecimal"/>
+	<field name="DISCOUNT_PERCENT" class="java.math.BigDecimal"/>
+	<field name="DISCOUNT_AMT" class="java.math.BigDecimal"/>
+	<field name="PRICEENTERED" class="java.math.BigDecimal"/>
+	<field name="PRICELIST" class="java.math.BigDecimal"/>
+	<field name="PRICEACTUAL" class="java.math.BigDecimal"/>
+	<variable name="v_seq" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[java.math.BigDecimal.ONE]]></variableExpression>
+	</variable>
+	<background>
+		<band height="802" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="210" width="555" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="230" width="555" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="211" width="1" height="399"/>
+			</line>
+			<line>
+				<reportElement x="555" y="211" width="1" height="399"/>
+			</line>
+			<line>
+				<reportElement x="0" y="610" width="555" height="1"/>
+			</line>
+			<line>
+				<reportElement x="1" y="536" width="555" height="1"/>
+			</line>
+			<line>
+				<reportElement x="48" y="211" width="1" height="325"/>
+			</line>
+			<line>
+				<reportElement x="122" y="211" width="1" height="325"/>
+			</line>
+			<line>
+				<reportElement x="311" y="211" width="1" height="325"/>
+			</line>
+			<line>
+				<reportElement x="357" y="211" width="1" height="325"/>
+			</line>
+			<line>
+				<reportElement x="403" y="211" width="1" height="399"/>
+			</line>
+			<line>
+				<reportElement x="499" y="211" width="1" height="399"/>
+			</line>
+			<line>
+				<reportElement x="453" y="212" width="1" height="325"/>
+			</line>
+			<line>
+				<reportElement x="1" y="585" width="555" height="1"/>
+			</line>
+			<line>
+				<reportElement x="404" y="561" width="151" height="1"/>
+			</line>
+			<line>
+				<reportElement x="355" y="678" width="150" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="50" y="679" width="150" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="50" y="691" width="12" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[(]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="188" y="691" width="12" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="355" y="691" width="12" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[(]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="493" y="691" width="12" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[)]]></text>
+			</staticText>
+			<line>
+				<reportElement x="367" y="707" width="126" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="62" y="707" width="126" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="51" y="717" width="149" height="16"/>
+				<textElement textAlignment="Center">
+					<font fontName="Angsana New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ผู้จัดทำ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="355" y="717" width="149" height="16"/>
+				<textElement textAlignment="Center">
+					<font fontName="Angsana New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ผู้อนุมัติ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="51" y="736" width="21" height="16"/>
+				<textElement textAlignment="Center">
+					<font fontName="Angsana New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[วันที่]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="355" y="736" width="21" height="16"/>
+				<textElement textAlignment="Center">
+					<font fontName="Angsana New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[วันที่]]></text>
+			</staticText>
+			<line>
+				<reportElement x="76" y="747" width="107" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="381" y="748" width="107" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+		</band>
+	</background>
+	<pageHeader>
+		<band height="210" splitType="Stretch">
+			<textField>
+				<reportElement x="110" y="0" width="301" height="24"/>
+				<textElement>
+					<font fontName="Cordia New" size="15" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{ORGANIZATION_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="110" y="24" width="301" height="16"/>
+				<textElement>
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[com.pasta.util.jasper.Scriptlet.getAddress($F{ADDRESS1},$F{ADDRESS2},$F{ADDRESS3},$F{ADDRESS4},$F{CITY},$F{POSTAL})]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="110" y="40" width="19" height="16"/>
+				<textElement>
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[โทร]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="194" y="40" width="26" height="16"/>
+				<textElement>
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[แฟกซ์]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="129" y="40" width="65" height="16"/>
+				<textElement>
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{PHONE}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="220" y="40" width="84" height="16"/>
+				<textElement>
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{FAX}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="411" y="0" width="136" height="40"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Cordia New" size="32" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ใบสั่งซื้อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="110" y="56" width="96" height="16"/>
+				<textElement>
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<text><![CDATA[เลขประจำตัวผู้เสียภาษีอากร]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="208" y="56" width="100" height="16"/>
+				<textElement>
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="86" width="45" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="15" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[เรียน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="123" width="45" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="15" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[โทรศัพท์]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="111" y="123" width="50" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="15" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[แฟกซ์]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="45" y="86" width="259" height="15"/>
+				<textElement>
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{VENDOR_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="45" y="101" width="336" height="16"/>
+				<textElement>
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[com.pasta.util.jasper.Scriptlet.getAddress($F{VENDOR_ADDRESS1},$F{VENDOR_ADDRESS2},$F{VENDOR_ADDRESS3},$F{VENDOR_ADDRESS4},$F{VENDOR_CITY},$F{VENDOR_POSTAL})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="45" y="123" width="65" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{VENDOR_PHONE}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="161" y="123" width="84" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{VENDOR_FAX}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="452" y="86" width="99" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{PONUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="391" y="86" width="59" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="15" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[เลขที่ใบสั่งซื้อ: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="391" y="109" width="59" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="15" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[วันที่ใบสั่งซื้อ: ]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="452" y="109" width="99" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{DATEORDERED}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="6" y="153" width="60" height="15"/>
+				<textElement>
+					<font fontName="Cordia New" size="13" isBold="false" isUnderline="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ที่อยู่ส่งของ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="196" y="153" width="77" height="15"/>
+				<textElement>
+					<font fontName="Cordia New" size="13" isBold="false" isUnderline="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ที่อยู่ส่งเอกสาร]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="6" y="168" width="170" height="29"/>
+				<textElement>
+					<font fontName="Cordia New" size="11" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[com.pasta.util.jasper.Scriptlet.getAddress($F{DELIVERY_ADDRESS1},$F{DELIVERY_ADDRESS2},$F{DELIVERY_ADDRESS3},$F{DELIVERY_ADDRESS4},$F{DELIVERY_CITY},$F{DELIVERY_POSTAL})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="196" y="168" width="170" height="29"/>
+				<textElement>
+					<font fontName="Cordia New" size="11" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[com.pasta.util.jasper.Scriptlet.getAddress($F{ADDRESS1},$F{ADDRESS2},$F{ADDRESS3},$F{ADDRESS4},$F{CITY},$F{POSTAL})]]></textFieldExpression>
+			</textField>
+			<rectangle radius="10">
+				<reportElement mode="Transparent" x="191" y="147" width="180" height="50"/>
+			</rectangle>
+			<rectangle radius="10">
+				<reportElement mode="Transparent" x="1" y="147" width="180" height="50"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="387" y="153" width="66" height="15"/>
+				<textElement>
+					<font fontName="Cordia New" size="13" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[วันครบกำหนดส่ง: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="391" y="175" width="62" height="15"/>
+				<textElement>
+					<font fontName="Cordia New" size="13" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[เงื่อนไขการชำระ: ]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="455" y="175" width="80" height="15"/>
+				<textElement>
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{PAYMENTTERM}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="455" y="153" width="80" height="15"/>
+				<textElement>
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{DATEPROMISED}]]></textFieldExpression>
+			</textField>
+			<rectangle radius="10">
+				<reportElement mode="Transparent" x="381" y="147" width="165" height="50"/>
+			</rectangle>
+			<image>
+				<reportElement x="0" y="0" width="107" height="72"/>
+				<imageExpression class="java.net.URL"><![CDATA[getClass().getClassLoader().getResource("/img/logo.jpg")]]></imageExpression>
+			</image>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="45" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ลำดับ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="51" y="0" width="59" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[รหัสสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="123" y="0" width="181" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[รายละเอียดสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="309" y="0" width="47" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[จำนวน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="356" y="0" width="47" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[หน่วยนับ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="403" y="0" width="50" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[หน่วยละ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="453" y="0" width="45" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ส่วนลด]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="498" y="0" width="57" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงิน]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<textField>
+				<reportElement x="7" y="0" width="28" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_seq}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="129" y="0" width="175" height="18"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{PRODUCT_NAME}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="51" y="0" width="59" height="18"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{PRODUCT_CODE}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="309" y="0" width="42" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{QTYENTERED}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="356" y="0" width="47" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{UOM}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="403" y="0" width="45" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{PRICELIST}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="453" y="0" width="42" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{DISCOUNT_AMT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="498" y="0" width="54" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{LINENETAMT}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="17" width="555" height="1" forecolor="#CCCCCC"/>
+			</line>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="260" splitType="Stretch">
+			<staticText>
+				<reportElement x="415" y="23" width="63" height="18"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ภาษีมูลค่าเพิ่ม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="16" y="5" width="84" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[หมายเหตุ:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="17" y="44" width="100" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงินเป็นตัวอักษร:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="415" y="1" width="83" height="18"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[รวมมูลค่าสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="415" y="44" width="83" height="18"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ยอดเงินสุทธิ]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="478" y="23" width="17" height="18"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{RATE}.intValueExact()+"%"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<lastPageFooter>
+		<band height="260">
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="495" y="23" width="54" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{TAXAMT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="495" y="1" width="54" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{TAXBASEAMT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="495" y="44" width="54" height="18"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{GRANDTOTAL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="405" y="1" width="83" height="18"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[รวมมูลค่าสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="405" y="23" width="63" height="18"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ภาษีมูลค่าเพิ่ม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="405" y="44" width="83" height="18"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[ยอดเงินสุทธิ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="6" y="5" width="47" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[หมายเหตุ:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="7" y="44" width="100" height="20"/>
+				<box topPadding="2" leftPadding="2"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="false" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงินเป็นตัวอักษร:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="60" y="9" width="326" height="32"/>
+				<textElement>
+					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{REMARK}]]></textFieldExpression>
+			</textField>
+			<textField pattern="">
+				<reportElement x="112" y="44" width="274" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="13" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[com.pasta.util.jasper.Scriptlet.getAmtInWords($F{GRANDTOTAL}.setScale( 2, 2 ).toString())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="468" y="23" width="17" height="18"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Cordia New" size="14" isBold="true" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{RATE}.intValueExact()+"%"]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+</jasperReport>
