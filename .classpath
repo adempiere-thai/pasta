@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="base/src"/>
-	<classpathentry kind="src" path="JasperReports/src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/adempiere360lts"/>
-	<classpathentry kind="lib" path="/adempiere360lts/install/build/Adempiere/lib/Adempiere.jar"/>
-	<classpathentry kind="lib" path="/adempiere360lts/install/build/Adempiere/lib/CompiereJasperReqs.jar"/>
-	<classpathentry kind="lib" path="/adempiere360lts/install/build/Adempiere/lib/CCTools.jar"/>
-	<classpathentry kind="lib" path="/adempiere360lts/install/build/Adempiere/lib/CSTools.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/1.6.0_5">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v5.5">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.web"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/absolute"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/adempiere360lts"/>
+	<classpathentry kind="output" path="build/classes"/>
 </classpath>
