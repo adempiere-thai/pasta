@@ -96,4 +96,17 @@ public interface I_C_InvoiceTax
 	  * Accounting Date
 	  */
 	public Timestamp getDateTaxInvoice();
+	
+	/** Column name C_Period_ID */
+    public static final String COLUMNNAME_C_Period_ID = "C_Period_ID";
+
+	/** Set Period
+	  * C_Period_ID
+	  */
+	public void setC_Period_ID(int C_Period_ID);
+
+	/** Get Period
+	  * C_Period_ID
+	  */
+	public int getC_Period_ID();
 }

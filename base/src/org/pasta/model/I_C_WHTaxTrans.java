@@ -23,7 +23,7 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Interface for C_WHTaxTrans
  *  @author Adempiere (generated) 
- *  @version Release 3.6.0LTS
+ *  @version Release 3.7.0LTS
  */
 public interface I_C_WHTaxTrans 
 {
@@ -41,6 +41,32 @@ public interface I_C_WHTaxTrans
     BigDecimal accessLevel = BigDecimal.valueOf(3);
 
     /** Load Meta Data */
+
+    /** Column name ActualTaxAddress */
+    public static final String COLUMNNAME_ActualTaxAddress = "ActualTaxAddress";
+
+	/** Set Tax Address.
+	  * Address For Tax Invoice
+	  */
+	public void setActualTaxAddress (String ActualTaxAddress);
+
+	/** Get Tax Address.
+	  * Address For Tax Invoice
+	  */
+	public String getActualTaxAddress();
+
+    /** Column name ActualTaxBPartnerName */
+    public static final String COLUMNNAME_ActualTaxBPartnerName = "ActualTaxBPartnerName";
+
+	/** Set Tax Customer Name.
+	  * Tax Customer Name
+	  */
+	public void setActualTaxBPartnerName (String ActualTaxBPartnerName);
+
+	/** Get Tax Customer Name.
+	  * Tax Customer Name
+	  */
+	public String getActualTaxBPartnerName();
 
     /** Column name AD_Client_ID */
     public static final String COLUMNNAME_AD_Client_ID = "AD_Client_ID";
@@ -76,33 +102,7 @@ public interface I_C_WHTaxTrans
 	  */
 	public int getAD_Table_ID();
 
-	public I_AD_Table getAD_Table() throws RuntimeException;
-
-    /** Column name ActualTaxAddress */
-    public static final String COLUMNNAME_ActualTaxAddress = "ActualTaxAddress";
-
-	/** Set Tax Address.
-	  * Address For Tax Invoice
-	  */
-	public void setActualTaxAddress (String ActualTaxAddress);
-
-	/** Get Tax Address.
-	  * Address For Tax Invoice
-	  */
-	public String getActualTaxAddress();
-
-    /** Column name ActualTaxBPartnerName */
-    public static final String COLUMNNAME_ActualTaxBPartnerName = "ActualTaxBPartnerName";
-
-	/** Set Tax Customer Name.
-	  * Tax Customer Name
-	  */
-	public void setActualTaxBPartnerName (String ActualTaxBPartnerName);
-
-	/** Get Tax Customer Name.
-	  * Tax Customer Name
-	  */
-	public String getActualTaxBPartnerName();
+	public org.compiere.model.I_AD_Table getAD_Table() throws RuntimeException;
 
     /** Column name C_BPartner_ID */
     public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
@@ -117,7 +117,7 @@ public interface I_C_WHTaxTrans
 	  */
 	public int getC_BPartner_ID();
 
-	public I_C_BPartner getC_BPartner() throws RuntimeException;
+	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
 
     /** Column name C_BPartner_Location_ID */
     public static final String COLUMNNAME_C_BPartner_Location_ID = "C_BPartner_Location_ID";
@@ -132,7 +132,7 @@ public interface I_C_WHTaxTrans
 	  */
 	public int getC_BPartner_Location_ID();
 
-	public I_C_BPartner_Location getC_BPartner_Location() throws RuntimeException;
+	public org.compiere.model.I_C_BPartner_Location getC_BPartner_Location() throws RuntimeException;
 
     /** Column name C_WHTaxTrans_ID */
     public static final String COLUMNNAME_C_WHTaxTrans_ID = "C_WHTaxTrans_ID";
@@ -206,6 +206,19 @@ public interface I_C_WHTaxTrans
 	  * The record is active in the system
 	  */
 	public boolean isActive();
+
+    /** Column name IsPrinted */
+    public static final String COLUMNNAME_IsPrinted = "IsPrinted";
+
+	/** Set Printed.
+	  * Indicates if this document / line is printed
+	  */
+	public void setIsPrinted (String IsPrinted);
+
+	/** Get Printed.
+	  * Indicates if this document / line is printed
+	  */
+	public String getIsPrinted();
 
     /** Column name PNDType */
     public static final String COLUMNNAME_PNDType = "PNDType";
@@ -299,15 +312,6 @@ public interface I_C_WHTaxTrans
 	  */
 	public int getUpdatedBy();
 
-    /** Column name WHTCertifiedStatus */
-    public static final String COLUMNNAME_WHTCertifiedStatus = "WHTCertifiedStatus";
-
-	/** Set Withholding Status	  */
-	public void setWHTCertifiedStatus (String WHTCertifiedStatus);
-
-	/** Get Withholding Status	  */
-	public String getWHTCertifiedStatus();
-
     /** Column name WHTaxType */
     public static final String COLUMNNAME_WHTaxType = "WHTaxType";
 
@@ -325,6 +329,15 @@ public interface I_C_WHTaxTrans
 
 	/** Get Withholding Tax Type Other	  */
 	public String getWHTaxTypeOthers();
+
+    /** Column name WHTCertifiedStatus */
+    public static final String COLUMNNAME_WHTCertifiedStatus = "WHTCertifiedStatus";
+
+	/** Set Withholding Status	  */
+	public void setWHTCertifiedStatus (String WHTCertifiedStatus);
+
+	/** Get Withholding Status	  */
+	public String getWHTCertifiedStatus();
 
     /** Column name WithholdingAction */
     public static final String COLUMNNAME_WithholdingAction = "WithholdingAction";
