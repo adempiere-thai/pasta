@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<adempiereAD Name="PastaEntityType" Version="01" CompVer="Release 3.3.0" DataBase="1" Description="pasta" creator="pasuwatw@gmail.com" creatorcontact="pasuwatw@gmail.com" createddate="2012-04-14 00:58:07" updateddate="2012-04-14 00:58:07" PackOutVer="005">
+    <entitytype AD_EntityType_ID="80000" Name="Pasta" Description="Pasuwat &amp; Sukritta" Help="" EntityType="pasta" Version="001" IsActive="true" ModelPackage="org.pasta.model" Classpath=""/>
+</adempiereAD>
