@@ -28,6 +28,7 @@ import org.compiere.model.MOrg;
 import org.compiere.model.MProcess;
 import org.compiere.model.MRefList;
 import org.compiere.model.MSession;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.Query;
 import org.compiere.process.ClientProcess;
 import org.compiere.process.ProcessCall;
@@ -42,8 +43,9 @@ import org.compiere.util.Env;
 import org.compiere.util.Trx;
 import org.compiere.utils.DigestOfFile;
 
-import org.pasta.model.MWHTaxTrans;
+import org.pasta.model.MCWHTaxTrans;
 import org.pasta.model.MBPartner;
+import org.pasta.model.MTHWithholdingSeq;
 import org.pasta.model.X_C_WHTaxTrans;
 import org.pasta.model.X_C_WHTaxTransLine;
 
@@ -129,7 +131,7 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 
 		String orderBy = X_C_WHTaxTrans.COLUMNNAME_DateDoc;
 
-		List<MWHTaxTrans> transL = new Query(getCtx(), MWHTaxTrans.Table_Name,
+		List<MCWHTaxTrans> transL = new Query(getCtx(), MCWHTaxTrans.Table_Name,
 				whereClause.toString(), get_TrxName()).setOrderBy(orderBy)
 				.setParameters(params).list();
 
@@ -145,7 +147,11 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 			throw new AdempiereException("NO_WITHHOLDING_FORM");
 
 		File certified = createWHTaxForm(pdfForm, transL);
-
+		
+		if(certified != null)
+			System.out.println("Open File : "+certified.getName());
+		else
+			System.out.println("No File to Open");
 		return openFile(certified);// .getPath() + " " + certified.getName();
 	}
 
@@ -162,6 +168,7 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 	private String openFile(File certified) throws Exception {
 		// TODO Auto-generated method stub
 		
+		System.out.println("Open File");
 		MSession session = MSession.get(this.getCtx(), false);
 		
 		if(StringUtils.isEmpty(session.getWebSession())){
@@ -169,7 +176,9 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 			desktop.open(certified);
 		}
 		else{
+			System.out.println("Report Starter View PDF Web UI ");
 			ReportStarter.viewPdfWebUI(certified.getName(), new FileInputStream(certified));
+			System.out.println("Report Starter View PDF Web UI ");
 		}
 		
 		return "";
@@ -180,7 +189,7 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 		return this.m_pi;
 	}
 
-	private File createWHTaxForm(File pdfForm, List<MWHTaxTrans> transL)
+	private File createWHTaxForm(File pdfForm, List<MCWHTaxTrans> transL)
 			throws Exception {
 		PdfDictionary pageDict;
 
@@ -202,8 +211,8 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 			throw new AdempiereException("NO_REPORTING_ORG");
 
 		String orgTaxId = reportOrg.getInfo().getTaxID();
-		if (orgTaxId.length() != 10)
-			throw new AdempiereException("REPORTING_ORG_TAXID_NOT_10");
+		if (!(orgTaxId.length() != 10 || orgTaxId.length() != 13))
+			throw new AdempiereException("REPORTING_ORG_TAXID_NOT_10_OR_13");
 
 		MLocation loc = (MLocation) reportOrg.getInfo().getC_Location();
 		String reportOrgAddress = getAddressString(loc);
@@ -211,8 +220,8 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 
 		List<File> certifieds = new ArrayList<File>();
 
-		for (X_C_WHTaxTrans trans : transL) {
-			File certified = new File(trans.getDocumentNo() + ".pdf");
+		for (MCWHTaxTrans trans : transL) {
+			File certified = new File(trans.getDocumentNo()+"_"+(new Date()).getTime()+ ".pdf");
 
 			// baos = new ByteArrayOutputStream();
 
@@ -224,8 +233,9 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 			PdfStamper stamper = new PdfStamper(r2, output);
 			AcroFields form = stamper.getAcroFields();
 
-			// Clear Form
-			// clearFormValue(form);
+			if(MTHWithholdingSeq.BEFORE_PRINT_WHTAX_CERTIFIED.equalsIgnoreCase(MSysConfig.getValue(MTHWithholdingSeq.SYSTEM_VARIABLE_FOR_DOCUMENT_TIME_NAME))){
+				trans = generateWithholdingTaxNo(trans);
+			}
 
 			/** Start Set Form **/
 			// 1 Set Client Information
@@ -235,9 +245,17 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 			form.setField("add1", reportOrgAddress);
 
 			int idx = 0;
-			for (char id : orgTaxId.toCharArray()) {
-				idx++;
-				form.setField("tin" + idx, String.valueOf(id));
+			if(orgTaxId.length() == 10){
+				for (char id : orgTaxId.toCharArray()) {
+					idx++;
+					form.setField("tin" + idx, String.valueOf(id));
+				}
+			}
+			else if(orgTaxId.length() == 13){
+				for (char id : orgTaxId.toCharArray()) {
+					idx++;
+					form.setField("id" + idx, String.valueOf(id));
+				}
 			}
 
 			// 2 Set Vendor Information
@@ -266,9 +284,17 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 
 			if (!StringUtils.isEmpty(bpTaxId)) {
 				idx = 0;
-				for (char id : bpTaxId.toCharArray()) {
-					idx++;
-					form.setField("tin" + idx + "_2", String.valueOf(id));
+				if(bpTaxId.length() == 10){
+					for (char id : bpTaxId.toCharArray()) {
+						idx++;
+						form.setField("tin" + idx + "_2", String.valueOf(id));
+					}
+				}
+				else if(bpTaxId.length() == 13){
+					for (char id : bpTaxId.toCharArray()) {
+						idx++;
+						form.setField("id" + idx + "_2", String.valueOf(id));
+					}
 				}
 			} else {
 				String bpCitizenId = trans.getCitizenID();
@@ -289,7 +315,7 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 				form.setField(pndType, "Yes");
 
 			// 3 Set Detail
-			List<X_C_WHTaxTransLine> lineL = MWHTaxTrans.getLines(getCtx(),
+			List<X_C_WHTaxTransLine> lineL = MCWHTaxTrans.getLines(getCtx(),
 					trans.getC_WHTaxTrans_ID(), get_TrxName());
 
 			SimpleDateFormat sdFmt = new SimpleDateFormat("dd/MM/yyyy",
@@ -383,6 +409,10 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 			r2.close();
 			output.close();		
 			certifieds.add(certified);
+			
+			trans.setIsPrinted("Y");
+			if(!trans.save(this.get_TrxName()))
+				log.severe("CANNOT UPDATE Print Flag In Withholding Tax Transaction");
 		}
 		/*
 		 * if (document != null) document.close(); if (copy != null)
@@ -395,6 +425,20 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 			return merge(certifieds);
 
 		return null;
+	}
+
+	private MCWHTaxTrans generateWithholdingTaxNo(MCWHTaxTrans trans) {
+		MTHWithholdingSeq sequenceSetup = MTHWithholdingSeq.getSequence(trans);
+		
+		Timestamp datetime = trans.getDateDoc(); 
+		if(sequenceSetup.getAD_DateColumn_ID() > 0)
+			datetime =  (Timestamp)trans.get_Value(sequenceSetup.getAD_DateColumn().getColumnName());
+		
+		String docNo = sequenceSetup.getNextDocumentNo(datetime);
+		if(!StringUtils.isEmpty(docNo))
+			trans.setDocumentNo(docNo);
+		
+		return trans;
 	}
 
 	private File merge(List<File> certifieds) throws Exception {
