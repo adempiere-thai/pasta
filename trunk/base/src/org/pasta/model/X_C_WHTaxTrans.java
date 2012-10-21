@@ -27,14 +27,14 @@ import org.compiere.util.KeyNamePair;
 
 /** Generated Model for C_WHTaxTrans
  *  @author Adempiere (generated) 
- *  @version Release 3.6.0LTS - $Id$ */
+ *  @version Release 3.7.0LTS - $Id$ */
 public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent 
 {
 
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20110904L;
+	private static final long serialVersionUID = 20120729L;
 
     /** Standard Constructor */
     public X_C_WHTaxTrans (Properties ctx, int C_WHTaxTrans_ID, String trxName)
@@ -47,7 +47,8 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 			setC_WHTaxTrans_ID (0);
 			setDateDoc (new Timestamp( System.currentTimeMillis() ));
 // @#Date@
-			setDocumentNo (null);
+			setIsPrinted (null);
+// N
 			setPNDType (null);
 			setWHTaxType (null);
 // 1
@@ -84,34 +85,6 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
       return sb.toString();
     }
 
-	public I_AD_Table getAD_Table() throws RuntimeException
-    {
-		return (I_AD_Table)MTable.get(getCtx(), I_AD_Table.Table_Name)
-			.getPO(getAD_Table_ID(), get_TrxName());	}
-
-	/** Set Table.
-		@param AD_Table_ID 
-		Database Table information
-	  */
-	public void setAD_Table_ID (int AD_Table_ID)
-	{
-		if (AD_Table_ID < 1) 
-			set_Value (COLUMNNAME_AD_Table_ID, null);
-		else 
-			set_Value (COLUMNNAME_AD_Table_ID, Integer.valueOf(AD_Table_ID));
-	}
-
-	/** Get Table.
-		@return Database Table information
-	  */
-	public int getAD_Table_ID () 
-	{
-		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Table_ID);
-		if (ii == null)
-			 return 0;
-		return ii.intValue();
-	}
-
 	/** Set Tax Address.
 		@param ActualTaxAddress 
 		Address For Tax Invoice
@@ -146,9 +119,37 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 		return (String)get_Value(COLUMNNAME_ActualTaxBPartnerName);
 	}
 
-	public I_C_BPartner getC_BPartner() throws RuntimeException
+	public org.compiere.model.I_AD_Table getAD_Table() throws RuntimeException
     {
-		return (I_C_BPartner)MTable.get(getCtx(), I_C_BPartner.Table_Name)
+		return (org.compiere.model.I_AD_Table)MTable.get(getCtx(), org.compiere.model.I_AD_Table.Table_Name)
+			.getPO(getAD_Table_ID(), get_TrxName());	}
+
+	/** Set Table.
+		@param AD_Table_ID 
+		Database Table information
+	  */
+	public void setAD_Table_ID (int AD_Table_ID)
+	{
+		if (AD_Table_ID < 1) 
+			set_Value (COLUMNNAME_AD_Table_ID, null);
+		else 
+			set_Value (COLUMNNAME_AD_Table_ID, Integer.valueOf(AD_Table_ID));
+	}
+
+	/** Get Table.
+		@return Database Table information
+	  */
+	public int getAD_Table_ID () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_AD_Table_ID);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException
+    {
+		return (org.compiere.model.I_C_BPartner)MTable.get(getCtx(), org.compiere.model.I_C_BPartner.Table_Name)
 			.getPO(getC_BPartner_ID(), get_TrxName());	}
 
 	/** Set Business Partner .
@@ -174,9 +175,9 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 		return ii.intValue();
 	}
 
-	public I_C_BPartner_Location getC_BPartner_Location() throws RuntimeException
+	public org.compiere.model.I_C_BPartner_Location getC_BPartner_Location() throws RuntimeException
     {
-		return (I_C_BPartner_Location)MTable.get(getCtx(), I_C_BPartner_Location.Table_Name)
+		return (org.compiere.model.I_C_BPartner_Location)MTable.get(getCtx(), org.compiere.model.I_C_BPartner_Location.Table_Name)
 			.getPO(getC_BPartner_Location_ID(), get_TrxName());	}
 
 	/** Set Partner Location.
@@ -277,6 +278,23 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
     {
         return new KeyNamePair(get_ID(), getDocumentNo());
     }
+
+	/** Set Printed.
+		@param IsPrinted 
+		Indicates if this document / line is printed
+	  */
+	public void setIsPrinted (String IsPrinted)
+	{
+		set_Value (COLUMNNAME_IsPrinted, IsPrinted);
+	}
+
+	/** Get Printed.
+		@return Indicates if this document / line is printed
+	  */
+	public String getIsPrinted () 
+	{
+		return (String)get_Value(COLUMNNAME_IsPrinted);
+	}
 
 	/** Set Phor Ngor Dor Type.
 		@param PNDType Phor Ngor Dor Type	  */
@@ -395,29 +413,6 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 		return bd;
 	}
 
-	/** WHTCertifiedStatus AD_Reference_ID=80003 */
-	public static final int WHTCERTIFIEDSTATUS_AD_Reference_ID=80003;
-	/** Draft = DR */
-	public static final String WHTCERTIFIEDSTATUS_Draft = "DR";
-	/** Prepared = PR */
-	public static final String WHTCERTIFIEDSTATUS_Prepared = "PR";
-	/** Used = US */
-	public static final String WHTCERTIFIEDSTATUS_Used = "US";
-	/** Set Withholding Status.
-		@param WHTCertifiedStatus Withholding Status	  */
-	public void setWHTCertifiedStatus (String WHTCertifiedStatus)
-	{
-
-		set_Value (COLUMNNAME_WHTCertifiedStatus, WHTCertifiedStatus);
-	}
-
-	/** Get Withholding Status.
-		@return Withholding Status	  */
-	public String getWHTCertifiedStatus () 
-	{
-		return (String)get_Value(COLUMNNAME_WHTCertifiedStatus);
-	}
-
 	/** Set Withholding Tax Type.
 		@param WHTaxType Withholding Tax Type	  */
 	public void setWHTaxType (String WHTaxType)
@@ -444,6 +439,29 @@ public class X_C_WHTaxTrans extends PO implements I_C_WHTaxTrans, I_Persistent
 	public String getWHTaxTypeOthers () 
 	{
 		return (String)get_Value(COLUMNNAME_WHTaxTypeOthers);
+	}
+
+	/** WHTCertifiedStatus AD_Reference_ID=80003 */
+	public static final int WHTCERTIFIEDSTATUS_AD_Reference_ID=80003;
+	/** Draft = DR */
+	public static final String WHTCERTIFIEDSTATUS_Draft = "DR";
+	/** Prepared = PR */
+	public static final String WHTCERTIFIEDSTATUS_Prepared = "PR";
+	/** Used = US */
+	public static final String WHTCERTIFIEDSTATUS_Used = "US";
+	/** Set Withholding Status.
+		@param WHTCertifiedStatus Withholding Status	  */
+	public void setWHTCertifiedStatus (String WHTCertifiedStatus)
+	{
+
+		set_Value (COLUMNNAME_WHTCertifiedStatus, WHTCertifiedStatus);
+	}
+
+	/** Get Withholding Status.
+		@return Withholding Status	  */
+	public String getWHTCertifiedStatus () 
+	{
+		return (String)get_Value(COLUMNNAME_WHTCertifiedStatus);
 	}
 
 	/** WithholdingAction AD_Reference_ID=80004 */

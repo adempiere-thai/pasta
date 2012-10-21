@@ -12,8 +12,12 @@ import org.compiere.acct.FactLine;
 import org.compiere.model.FactsValidator;
 import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
+import org.compiere.model.MAllocationHdr;
+import org.compiere.model.MAllocationLine;
 import org.compiere.model.MClient;
 import org.compiere.model.MPayment;
+import org.compiere.model.MPaymentAllocate;
+import org.compiere.model.MSysConfig;
 import org.compiere.model.MWithholding;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -57,9 +61,11 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 
 		// Add Document Validator 
 		engine.addDocValidate(MPayment.Table_Name, this);
+		engine.addDocValidate(MAllocationHdr.Table_Name, this);
 		
 		// Add Fact Validator
 		engine.addFactsValidate(MPayment.Table_Name, this);
+		engine.addFactsValidate(MAllocationHdr.Table_Name, this);
 	}
 
 	public String login(int AD_Org_ID, int AD_Role_ID, int AD_User_ID) {
@@ -81,10 +87,18 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 		
 		if(MPayment.Table_Name.equals(po.get_TableName())){
 			MPayment payment = (MPayment)po;
-			
-			if(TIMING_AFTER_COMPLETE == timing)
+			X_C_Payment x_payment = new X_C_Payment(m_ctx,payment.getC_Payment_ID(),trxName);
+			if(TIMING_AFTER_COMPLETE == timing){
 				setWithholdingStatus(X_C_WHTaxTrans.WHTCERTIFIEDSTATUS_Used,payment);
-			else if(TIMING_AFTER_REVERSECORRECT == timing){
+				MAllocationHdr[] allocates = MAllocationHdr.getOfPayment(m_ctx, payment.getC_Payment_ID(), trxName);
+				for(MAllocationHdr m_allocate : allocates){
+					X_C_AllocationHdr x_allocate = new X_C_AllocationHdr(m_ctx, m_allocate.getC_AllocationHdr_ID(), trxName);
+					
+					x_allocate.setWithholdingAmt(x_payment.getWithholdingAmt());
+					if(!x_allocate.save(trxName))
+						new AdempiereException("CANNOT_SAVE_WITHHOLDING_AMT_ALLOCATE");
+				}
+			}else if(TIMING_AFTER_REVERSECORRECT == timing){
 				setWithholdingStatus(X_C_WHTaxTrans.WHTCERTIFIEDSTATUS_Prepared,payment);
 				
 				// Set Reverse Document 
@@ -95,6 +109,14 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 					new AdempiereException("CANNOT_REVERSE_WITHHOLDING_TAX_AMT");
 			}
 		}
+		/*else if(MAllocationHdr.Table_Name.equals(po.get_TableName())){
+			MAllocationHdr alloHdr = (MAllocationHdr)po;
+			if(TIMING_AFTER_COMPLETE == timing){
+				
+			}else if(TIMING_AFTER_REVERSECORRECT == timing){
+				
+			}
+		}*/
 		
 		return null;
 	}
@@ -108,6 +130,7 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 		if(MPayment.Table_Name.equals(po.get_TableName())){
 			X_C_Payment payment = new X_C_Payment(m_ctx,po.get_ID(),trxName);
 			
+			// Case Charge Payment + Withholding Tax
 			if(payment.getC_Charge_ID() > 0 
 					&& payment.getWithholdingAmt().signum() !=  0 
 					&& !payment.isReceipt())
@@ -125,7 +148,7 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 							}
 							else{ 
 								line.setAmtAcct(line.getAmtAcctDr().add(withholdingAmt), line.getAmtAcctCr());
-								line.setAmtSource(payment.getC_Currency_ID(), line.getAmtSourceDr().add(withholdingAmt), line.getAmtSourceCr());
+								line.setAmtSource(payment.getC_Currency_ID(), line.getAmtSourceDr(), line.getAmtSourceCr());
 							}
 						}
 					}
@@ -148,6 +171,95 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 					
 					DocLine line = new DocLine(payment,doc);
 					fact.createLine(line, account, payment.getC_Currency_ID(), Env.ZERO, withholdingAmt);
+				}
+			}
+			else if( payment.getWithholdingAmt().signum() !=  0 && !payment.isReceipt())
+			{
+				BigDecimal withholdingAmt = payment.getWithholdingAmt();
+				for(Fact fact : facts){
+					FactLine[] lines = fact.getLines();
+					MAccount bank_acct = doc.getAccount(Doc.ACCTTYPE_BankInTransit, as);
+					MAccount pay_acct = doc.getAccount(Doc.ACCTTYPE_PaymentSelect, as);
+					
+					for(FactLine line : lines){
+						if(bank_acct.equals(line.getAccount())){
+							if( payment.DOCSTATUS_Completed.equals(payment.getDocStatus())){
+								line.setAmtAcct(line.getAmtAcctDr(), line.getAmtAcctCr().subtract(withholdingAmt));
+								line.setAmtSource(payment.getC_Currency_ID(), line.getAmtSourceDr(), line.getAmtSourceCr());
+							}
+							else{ 
+								line.setAmtAcct(line.getAmtAcctDr().add(withholdingAmt), line.getAmtAcctCr());
+								line.setAmtSource(payment.getC_Currency_ID(), line.getAmtSourceDr(), line.getAmtSourceCr());
+							}
+						}
+						
+						if(pay_acct.equals(line.getAccount())){
+							if( payment.DOCSTATUS_Completed.equals(payment.getDocStatus())){
+								line.setAmtAcct(line.getAmtAcctDr().subtract(withholdingAmt), line.getAmtAcctCr());
+								line.setAmtSource(payment.getC_Currency_ID(), line.getAmtSourceDr(), line.getAmtSourceCr());
+							}
+							else{ 
+								line.setAmtAcct(line.getAmtAcctDr(), line.getAmtAcctCr().add(withholdingAmt));
+								line.setAmtSource(payment.getC_Currency_ID(), line.getAmtSourceDr(), line.getAmtSourceCr());
+							}
+						}
+					}
+				}
+			}
+		}
+		else if(MAllocationHdr.Table_Name.equals(po.get_TableName())){
+			X_C_AllocationHdr allcation = new X_C_AllocationHdr(m_ctx,po.get_ID(),trxName);
+			MAllocationHdr m_allocation = (MAllocationHdr)po;
+			
+			int C_BPartner_ID = 0;
+			int C_Currency_ID = 0;
+			boolean postWHTax = false;
+			
+			MAllocationLine[] allLines = m_allocation.getLines(true);
+			for(MAllocationLine m_line:allLines){
+				if(m_line.getC_BPartner_ID() > 0 && m_line.getC_Payment_ID() > 0 ){
+					if(m_line.getC_Payment().getC_Charge_ID() <= 0){
+						postWHTax = true;
+						C_BPartner_ID = m_line.getC_BPartner_ID();
+						C_Currency_ID = m_line.getC_Payment().getC_Currency_ID(); 
+						break;
+					}
+				}
+			}
+			
+			if(allcation.getWithholdingAmt().signum() != 0 && postWHTax){
+				BigDecimal whTaxAmt = allcation.getWithholdingAmt();
+				for(Fact fact : facts){
+					FactLine[] lines = fact.getLines();
+					MAccount pay_Acct = doc.getAccount(Doc.ACCTTYPE_PaymentSelect, as);
+					
+					for(FactLine line : lines){
+						if(pay_Acct.equals(line.getAccount())){
+							line.setAmtAcct(line.getAmtAcctDr(), line.getAmtAcctCr().subtract(whTaxAmt));
+							line.setAmtSource(C_Currency_ID, line.getAmtSourceDr(), line.getAmtSourceCr().subtract(whTaxAmt));
+						}
+					}
+					
+					MWithholding withholding = getWithholding(C_BPartner_ID);
+					if(withholding == null)
+						new AdempiereException("CANNOT_FOUND_BPARTNER_WITHHOLDING_TAX");
+					
+					// Found Account
+					String whereClause = X_C_Withholding_Acct.COLUMNNAME_C_Withholding_ID+" = ? AND "+
+											X_C_Withholding_Acct.COLUMNNAME_C_AcctSchema_ID + " = ? ";
+					
+					Object[] params = {withholding.getC_Withholding_ID(),as.getC_AcctSchema_ID()};
+					
+					X_C_Withholding_Acct whtAcct = new Query(m_ctx,X_C_Withholding_Acct.Table_Name,whereClause,trxName)
+													.setParameters(params).first();
+					
+					int C_ValidCombination_ID =  whtAcct.getWithholding_Acct();
+					MAccount account = MAccount.get(m_ctx, C_ValidCombination_ID);
+					
+					DocLine line = new DocLine(allcation,doc);
+					FactLine fLine = fact.createLine(line, account, C_Currency_ID, Env.ZERO, whTaxAmt);
+					fLine.setC_BPartner_ID(C_BPartner_ID);
+					fLine.save();
 				}
 			}
 		}

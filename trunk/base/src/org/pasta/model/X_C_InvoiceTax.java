@@ -180,4 +180,13 @@ public class X_C_InvoiceTax extends org.compiere.model.X_C_InvoiceTax implements
 	public void setDateTaxInvoice(Timestamp DateTaxInvoice) {
 		set_Value (COLUMNNAME_DateTaxInvoice, DateTaxInvoice);
 	}
+
+	public int getC_Period_ID() {
+		// TODO Auto-generated method stub
+		return (Integer)get_Value(COLUMNNAME_C_Period_ID);
+	}
+
+	public void setC_Period_ID(int C_Period_ID) {
+		set_Value (COLUMNNAME_C_Period_ID, C_Period_ID);
+	}
 }

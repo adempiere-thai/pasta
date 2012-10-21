@@ -104,6 +104,9 @@ public class MInvoiceTax extends org.pasta.model.X_C_InvoiceTax
 		retValue.setTaxInvoiceNo(line.getParent().getDocumentNo());
 		retValue.setDateTaxInvoice(line.getParent().getDateInvoiced());
 		
+		int C_Period_ID = MPeriod.getC_Period_ID(line.getCtx() , line.getParent().getDateAcct(),line.getParent().getAD_Org_ID());
+		retValue.setC_Period_ID(C_Period_ID);
+		
 		s_log.fine("(new) " + retValue);
 		return retValue;
 	}	//	get
