@@ -83,7 +83,7 @@ public class SpecialInvoiceGenerate extends SvrProcess {
 		
 		while(rset.next()){
 			if(invoice == null){
-				invoice = createInvoiceHeader(partner,price);
+				invoice = createInvoiceHeader(partner,price,period);
 			}
 			
 			MProduct product = MProduct.get(getCtx(), rset.getInt(1));
@@ -125,13 +125,17 @@ public class SpecialInvoiceGenerate extends SvrProcess {
 	private static final String ERR_CANNOT_SAVE_INVOICELINE = "CANNOT_SAVE_INVOICE_LINE";
 	private static final String ERR_CANNOT_SAVE_INVOICE = "CANNOT_SAVE_INVOICE";
 
-	private MInvoice createInvoiceHeader(MBPartner partner, MPriceList price) {
+	private MInvoice createInvoiceHeader(MBPartner partner, MPriceList price, MPeriod period) {
 		MInvoice invoice = new MInvoice(getCtx(),0,get_TrxName());
 		invoice.setBPartner(partner);
 		invoice.setM_PriceList_ID(price.getM_PriceList_ID());
 		invoice.setC_DocTypeTarget_ID(1000128);
 		invoice.setC_DocType_ID(1000128);
 		invoice.setAD_Org_ID(1000005);
+		
+		invoice.setDateInvoiced(period.getEndDate());
+		invoice.setDateAcct(period.getEndDate());
+		
 		invoice.save(get_TrxName());
 		return invoice;
 	}
