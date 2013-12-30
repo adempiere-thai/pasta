@@ -84,7 +84,7 @@ public class WithholdingCertificate implements ProcessCall, ClientProcess{
 
 		List<Object> params = new ArrayList<Object>();
 
-		whereClause.append(X_C_WHTaxTrans.COLUMNNAME_IsActive + " ='Y' ");
+		whereClause.append(X_C_WHTaxTrans.COLUMNNAME_IsActive + " ='Y' AND AD_Client_ID = "+Env.getAD_Client_ID(m_ctx)+" ");
 
 		if (p_dateDocFrom != null) {
 			whereClause.append("AND " + X_C_WHTaxTrans.COLUMNNAME_DateDoc
