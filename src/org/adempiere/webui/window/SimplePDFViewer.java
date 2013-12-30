@@ -13,11 +13,17 @@
 package org.adempiere.webui.window;
 
 import java.io.InputStream;
+import java.util.Properties;
 
+import org.adempiere.webui.component.ConfirmPanel;
 import org.adempiere.webui.component.Window;
 import org.adempiere.webui.session.SessionManager;
+import org.compiere.util.Env;
 import org.pasta.component.IPDFViewer;
 import org.zkoss.util.media.AMedia;
+import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.event.EventListener;
+import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zul.Iframe;
 
 /**
@@ -25,44 +31,71 @@ import org.zkoss.zul.Iframe;
  * @author Low Heng Sin
  *
  */
-public class SimplePDFViewer extends Window implements IPDFViewer {
+public class SimplePDFViewer extends Window implements IPDFViewer,EventListener {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -6417954023873414350L;
+	Iframe iframe ;
+	
+	private int                 m_WindowNo;
+	/**	Print Context				*/
+	private Properties			m_ctx;
 
 	public SimplePDFViewer(String title, InputStream pdfInput) {
 		viewPdf(title,pdfInput);
 	}
 	
 	public SimplePDFViewer(){
+		iframe = new Iframe();
+		iframe.setId("reportFrame");
 	}
 	
 	public void viewPdf(String title, InputStream pdfInput){
-		Iframe iframe = new Iframe();
-		iframe.setId("reportFrame");
+		AMedia media = new AMedia(getTitle(), "pdf", "application/pdf", pdfInput);
+		iframe.setContent(media);
+		this.title = title;
+	}
+	
+	private String title = "";
+	
+	public void display(){
+		
+		Window window = new Window();
+		
 		int height = Double.valueOf(SessionManager.getAppDesktop().getClientInfo().desktopHeight * 0.85).intValue();
-		this.setHeight(height + "px");
+		window.setHeight(height + "px");
 		
 		height = height - 30;
 		iframe.setHeight(height + "px");
 		iframe.setWidth("100%");
-		AMedia media = new AMedia(getTitle(), "pdf", "application/pdf", pdfInput);
-		iframe.setContent(media);
 		
-		this.setBorder("normal");
-		this.appendChild(iframe);
-		this.setClosable(true);
-		this.setTitle(title);
+		window.setBorder("normal");
+		window.appendChild(iframe);
+		window.setClosable(true);
+		window.setTitle(title);
 		
 		int width = Double.valueOf(SessionManager.getAppDesktop().getClientInfo().desktopWidth * 0.80).intValue();
-		this.setWidth(width + "px");
+		window.setWidth(width + "px");
+		
+		window.setAttribute(Window.MODE_KEY, Window.MODE_EMBEDDED);
+		window.setAttribute(Window.INSERT_POSITION_KEY, Window.INSERT_NEXT);
+		SessionManager.getAppDesktop().showWindow(window);
 	}
-	
-	public void display(){
-		this.setAttribute(Window.MODE_KEY, Window.MODE_EMBEDDED);
-		this.setAttribute(Window.INSERT_POSITION_KEY, Window.INSERT_NEXT);
-		SessionManager.getAppDesktop().showWindow(this);
+
+	/**
+	 * 	Dispose
+	 */
+	public void onClose()
+	{
+		Env.clearWinContext(m_WindowNo);
+		super.onClose();
+	}	//	dispose
+
+	public void onEvent(Event event) throws Exception {
+		System.out.println(event.getName());
 	}
 }
+
+
