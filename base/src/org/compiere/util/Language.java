@@ -96,8 +96,8 @@ public class Language implements Serializable
 	 **/
 	static private Language[]   s_languages = {
 		new Language ("English",
-			AD_Language_en_US,  Locale.US,      null, null,
-			MediaSize.NA.LETTER),							    //  Base Language
+			AD_Language_en_US,  Locale.US,      null, "dd/MM/yyyy",
+			MediaSize.ISO.A4),							    //  Base Language
 		//	ordered by locale
 		//	Not predefined Locales - need to define decimal Point and date pattern (not sure about time)
 		/*new Language ("\uFE94\uFEF4\uFE91\uFEAE\uFECC\uFEDF\uFE8D (AR)",
