@@ -1184,6 +1184,9 @@ public class ReportStarter implements ProcessCall, ClientProcess
 
     public static void viewPdfWebUI(String title, InputStream pdfInput)
     {
+    	if(pdfViewer == null)
+    		System.out.println("No pdfViewer was initial!");
+    	
         pdfViewer.viewPdf(title, pdfInput);
         pdfViewer.display();
     }
