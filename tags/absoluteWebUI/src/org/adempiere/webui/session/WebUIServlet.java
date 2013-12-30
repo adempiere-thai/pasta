@@ -82,6 +82,7 @@ public class WebUIServlet extends DHtmlLayoutServlet
         Ini.setProperty(Ini.P_ADEMPIERESYS, false);
         ReportCtl.setReportViewerProvider(new ZkReportViewerProvider());
         ReportStarter.setReportViewerProvider(new ZkJRViewerProvider());
+        System.out.println("Set Simple PDF Viewer ");
         ReportStarter.setPdfViewerWebUI(new SimplePDFViewer());
         logger.info("ADempiere started successfully");
         /**
