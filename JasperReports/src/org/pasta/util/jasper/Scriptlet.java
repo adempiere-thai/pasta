@@ -5,14 +5,9 @@ import java.text.SimpleDateFormat;
 import java.text.DecimalFormat;
 import java.math.BigDecimal;
 import java.util.Locale;
-import java.util.logging.Level;
 
-import org.compiere.Adempiere;
-import org.compiere.model.MLocation;
-import org.compiere.util.CLogMgt;
-import org.compiere.util.Env;
-import org.compiere.util.Ini;
-import org.compiere.util.Login;
+import org.apache.commons.lang.StringUtils;
+import org.compiere.util.AmtInWords_EN;
 
 public class Scriptlet extends JRDefaultScriptlet {
 	private static final String[] majorNames = { "",
@@ -221,6 +216,7 @@ public class Scriptlet extends JRDefaultScriptlet {
 		if (amount == null)
 			return amount;
 		//
+		
 		StringBuffer sb = new StringBuffer();
 		int pos = amount.lastIndexOf('.');
 		int pos2 = amount.lastIndexOf(',');
@@ -269,6 +265,11 @@ public class Scriptlet extends JRDefaultScriptlet {
                 sb.append(convert(pesos)).append("\u0e40\u0e2b\u0e23\u0e35\u0e22\u0e0d").append( " [" +iso +"]");
             }
         }
+		
+		if(sb.toString().indexOf(iso) < 0){
+			sb.append( " [" +iso +"]");
+		}
+		
         return sb.toString ();
 	}
 
@@ -325,28 +326,42 @@ public class Scriptlet extends JRDefaultScriptlet {
 	
 	public static String getAddress(String address1,String address2,String address3,String address4,String city ,String postal )
 	{
-		StringBuffer strbuf = new StringBuffer();
-		if(address1 != null && address1.trim().length() >0)
+		StringBuffer strbuf = new StringBuffer(" ");
+		if(!StringUtils.isEmpty(address1))
 			strbuf.append(address1+" ");
 			
-		if(address2 != null && address2.trim().length() >0)
+		//if(address2 != null && address2.trim().length() >0)
+		if(!StringUtils.isEmpty(address2))
 			strbuf.append(address2+" ");
 		
-		if(address3 != null && address3.trim().length() >0)
+		//if(address3 != null && address3.trim().length() >0)
+		if(!StringUtils.isEmpty(address3))
 			strbuf.append(address3+" ");
 		
-		if(address4 != null && address4.trim().length() >0)
+		//if(address4 != null && address4.trim().length() >0)
+		if(!StringUtils.isEmpty(address4))
 			strbuf.append(address4+" ");
 		
-		if(city != null && city.trim().length() >0)
+		//if(city != null && city.trim().length() >0)
+		if(!StringUtils.isEmpty(city))
 			strbuf.append(city+" ");
 		
-		if(postal != null && postal.trim().length() >0)
+		//if(postal != null && postal.trim().length() >0)
+		if(!StringUtils.isEmpty(postal))
 			strbuf.append(postal+" ");
 		
 		return strbuf.toString().trim();
 	}
 	
+	public static void main(String args[]){
+		Scriptlet scp = new Scriptlet();
+		try{
+			BigDecimal amt = new BigDecimal("21234.00");
+			System.out.println(scp.getAmtInWords("21234.00", "EUR"));
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
 	
 	private static Locale th_Locale = new Locale("th","TH");
 }
