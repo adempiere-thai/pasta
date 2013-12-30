@@ -1,0 +1,795 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="TaxInvoice" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="224"/>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal"/>
+	<parameter name="DocumentNo1" class="java.lang.String"/>
+	<parameter name="DocumentNo2" class="java.lang.String"/>
+	<parameter name="DateInvoiced1" class="java.util.Date"/>
+	<parameter name="DateInvoiced2" class="java.util.Date"/>
+	<parameter name="Record_ID" class="java.math.BigDecimal"/>
+	<queryString>
+		<![CDATA[SELECT i.binarydata as logo , o.name as orgname_th , o.description as orgname_eng , oi.taxid
+      ,l.address1 ,l.address2 ,l.address3 ,l.address4,l.city,l.postal
+      ,len.address1 eng_address1,len.address2 eng_address2,len.address3 eng_address3,len.address4 eng_address4,len.city eng_city,len.postal eng_postal
+      ,oi.phone , oi.email , bp.name customer_name
+      ,bl.address1 cust_address1,bl.address2 cust_address2,bl.address3 cust_address3,bl.address4 cust_address4,bl.city cust_city,bl.postal cust_postal
+      ,sbl.address1 cust_address1_s,sbl.address2 cust_address2_s,sbl.address3 cust_address3_s,sbl.address4 cust_address4_s,sbl.city cust_city_s,sbl.postal cust_postal_s
+      ,ivh.documentno , ivh.dateinvoiced , ivh.poreference , ivh.paymentrule , pt.name paymentterm
+      ,pd.name product_name , ivl.priceactual , ivl.qtyentered , ivl.linenetamt ,t.rate as taxrate , it.taxbaseamt , it.taxamt , ivh.grandtotal
+      ,b.name as bankname , b.routingno , ba.accountno , ba.description account_name , ba.bankaccounttype, cc.iso_code , cc.cursymbol , ivh.packingno as packing_no
+FROM C_Invoice ivh
+INNER JOIN C_InvoiceLine ivl ON ivh.C_Invoice_ID = ivl.C_Invoice_ID
+INNER JOIN C_InvoiceTax it ON it.C_Invoice_ID = ivh.C_Invoice_Id
+INNER JOIN C_Tax t ON t.C_Tax_ID = it.C_Tax_ID
+INNER JOIN AD_Org o ON o.AD_Org_ID = ivh.AD_Org_ID
+INNER JOIN AD_OrgInfo oi ON o.AD_Org_ID = oi.AD_Org_ID
+INNER JOIN C_Location l ON l.C_Location_ID = oi.C_Location_ID
+LEFT JOIN C_Location len ON len.C_Location_ID = oi.C_LocationEng_ID
+INNER JOIN AD_Image i ON oi.logo_id = i.AD_Image_ID
+INNER JOIN C_DocType dt on dt.C_DocType_ID = ivh.C_DocType_ID
+LEFT JOIN C_BankAccount ba ON ba.C_BankAccount_ID = dt.C_BankAccount_ID
+LEFT JOIN C_Bank b ON b.C_Bank_ID = ba.C_Bank_ID
+INNER JOIN C_Currency cc ON cc.C_Currency_ID = ivh.C_Currency_ID
+INNER JOIN C_BPartner bp ON bp.C_BPartner_ID = ivh.C_BPartner_ID
+INNER JOIN C_BPartner_Location bpl ON bpl.C_BPartner_Location_ID = ivh.C_BPartner_Location_ID and bpl.isbillto = 'Y'
+INNER JOIN C_Location bl ON bl.C_Location_ID = bpl.C_Location_ID
+INNER JOIN C_BPartner_Location bpsl ON bpsl.C_BPartner_ID = bp.C_BPartner_ID and bpsl.isshipto = 'Y'
+INNER JOIN C_Location sbl ON sbl.C_Location_ID = bpsl.C_Location_ID
+INNER JOIN M_Product pd ON pd.M_Product_ID = ivl.M_Product_ID
+LEFT JOIN C_PaymentTerm pt ON pt.C_PaymentTerm_ID = ivh.C_PaymentTerm_ID
+WHERE ivh.c_invoice_id = $P{Record_ID}
+OR (ivh.ad_client_id = $P{AD_Client_ID}
+and ivh.ad_org_id = $P{AD_Org_ID}
+and ivh.documentno >= $P{DocumentNo1}
+and ivh.documentno <= $P{DocumentNo2}
+AND ivh.DATEINVOICED >= COALESCE($P{DateInvoiced1},ivh.DATEINVOICED)
+AND ivh.DATEINVOICED <= COALESCE($P{DateInvoiced2},COALESCE($P{DateInvoiced1},ivh.DATEINVOICED))
+)
+and ivh.issotrx = 'Y'
+and dt.istaxinvoice = 'Y'
+and dt.docbasetype = 'ARI'
+ORDER BY ivh.documentno , ivl.line asc]]>
+	</queryString>
+	<field name="logo" class="java.awt.Image"/>
+	<field name="orgname_th" class="java.lang.String"/>
+	<field name="orgname_eng" class="java.lang.String"/>
+	<field name="taxid" class="java.lang.String"/>
+	<field name="address1" class="java.lang.String"/>
+	<field name="address2" class="java.lang.String"/>
+	<field name="address3" class="java.lang.String"/>
+	<field name="address4" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="postal" class="java.lang.String"/>
+	<field name="eng_address1" class="java.lang.String"/>
+	<field name="eng_address2" class="java.lang.String"/>
+	<field name="eng_address3" class="java.lang.String"/>
+	<field name="eng_address4" class="java.lang.String"/>
+	<field name="eng_city" class="java.lang.String"/>
+	<field name="eng_postal" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String"/>
+	<field name="email" class="java.lang.String"/>
+	<field name="customer_name" class="java.lang.String"/>
+	<field name="cust_address1" class="java.lang.String"/>
+	<field name="cust_address2" class="java.lang.String"/>
+	<field name="cust_address3" class="java.lang.String"/>
+	<field name="cust_address4" class="java.lang.String"/>
+	<field name="cust_city" class="java.lang.String"/>
+	<field name="cust_postal" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="dateinvoiced" class="java.sql.Timestamp"/>
+	<field name="poreference" class="java.lang.String"/>
+	<field name="paymentrule" class="java.lang.String"/>
+	<field name="paymentterm" class="java.lang.String"/>
+	<field name="product_name" class="java.lang.String"/>
+	<field name="priceactual" class="java.math.BigDecimal"/>
+	<field name="qtyentered" class="java.math.BigDecimal"/>
+	<field name="linenetamt" class="java.math.BigDecimal"/>
+	<field name="taxrate" class="java.math.BigDecimal"/>
+	<field name="taxbaseamt" class="java.math.BigDecimal"/>
+	<field name="taxamt" class="java.math.BigDecimal"/>
+	<field name="grandtotal" class="java.math.BigDecimal"/>
+	<field name="bankname" class="java.lang.String"/>
+	<field name="routingno" class="java.lang.String"/>
+	<field name="accountno" class="java.lang.String"/>
+	<field name="account_name" class="java.lang.String"/>
+	<field name="bankaccounttype" class="java.lang.String"/>
+	<field name="iso_code" class="java.lang.String"/>
+	<field name="cursymbol" class="java.lang.String"/>
+	<field name="packing_no" class="java.lang.String"/>
+	<field name="cust_address1_s" class="java.lang.String"/>
+	<field name="cust_address2_s" class="java.lang.String"/>
+	<field name="cust_address3_s" class="java.lang.String"/>
+	<field name="cust_address4_s" class="java.lang.String"/>
+	<field name="cust_city_s" class="java.lang.String"/>
+	<field name="cust_postal_s" class="java.lang.String"/>
+	<variable name="V_SUM_QTY_PER_SO" class="java.math.BigDecimal" resetType="Group" resetGroup="documentno" calculation="Sum">
+		<variableExpression><![CDATA[$F{qtyentered}]]></variableExpression>
+	</variable>
+	<variable name="v_AccountTypeDescription" class="java.lang.String">
+		<variableExpression><![CDATA["S".equals($F{bankaccounttype})?"Savings":"Current"]]></variableExpression>
+	</variable>
+	<group name="documentno" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{documentno}]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="267" splitType="Stretch">
+			<staticText>
+				<reportElement x="314" y="0" width="241" height="34"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tax Invoice]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="123" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="0" y="126" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="0" y="127" width="261" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ขื่อลูกค้า/Customer:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="314" y="127" width="59" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[เลขที่/No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="167" width="261" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ที่อยู่/Address:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="22" y="147" width="239" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{customer_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="314" y="167" width="59" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[วันที่/Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="314" y="207" width="196" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ใบสั่งซื้อเลขที่/ Purchase order no:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="314" y="247" width="196" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[เงื่อนไขการชำระ/ Term of Payment:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="497" y="207" width="56" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{poreference}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="373" y="127" width="182" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MMMMM dd, yyyy" isBlankWhenNull="true">
+				<reportElement x="373" y="167" width="182" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{dateinvoiced}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="22" y="187" width="274" height="30"/>
+				<box leftPadding="5"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Tahoma" size="11"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getAddress($F{cust_address1},$F{cust_address2},$F{cust_address3},$F{cust_address4},$F{cust_city},$F{cust_postal})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="315" y="33" width="240" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Tax Payer ID: "+$F{taxid}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame">
+				<reportElement x="0" y="0" width="193" height="34"/>
+				<imageExpression class="java.awt.Image"><![CDATA[$F{logo}]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="33" width="192" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{orgname_th}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="52" width="192" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{orgname_eng}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="71" width="315" height="18"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getAddress($F{address1},$F{address2},$F{address3},$F{address4},$F{city},$F{postal})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="88" width="315" height="18"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getAddress($F{eng_address1},$F{eng_address2},$F{eng_address3},$F{eng_address4},$F{eng_city},$F{eng_postal})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="105" width="315" height="18"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Tel: "+$F{phone}+" Email: "+$F{email}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="499" y="247" width="56" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{paymentterm}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="314" y="54" width="241" height="69"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Tahoma" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{packing_no}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="217" width="261" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ที่อยู่ส่งของ/Ship Address:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="22" y="237" width="274" height="30"/>
+				<box leftPadding="5"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Tahoma" size="11"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getAddress($F{cust_address1_s},$F{cust_address2_s},$F{cust_address3_s},$F{cust_address4_s},$F{cust_city_s},$F{cust_postal_s})]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="39" splitType="Stretch">
+			<staticText>
+				<reportElement x="8" y="3" width="54" height="31"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="62" y="3" width="287" height="31"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="349" y="3" width="82" height="31"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Net Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="431" y="3" width="43" height="31"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[QTY]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="473" y="3" width="82" height="31"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Amount]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="1" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="0" y="35" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="0" y="38" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="24" splitType="Stretch">
+			<textField>
+				<reportElement x="8" y="0" width="54" height="24"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{documentno_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="62" y="0" width="287" height="24"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{product_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="349" y="0" width="11" height="24"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{cursymbol}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="475" y="0" width="11" height="24"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{cursymbol}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="360" y="0" width="69" height="24"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{priceactual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;-#,##0">
+				<reportElement x="431" y="0" width="31" height="24"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyentered}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="486" y="0" width="69" height="24"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{linenetamt}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="216" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="2" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="1" y="167" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="0" y="215" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<textField evaluationTime="Group" evaluationGroup="documentno">
+				<reportElement x="98" y="23" width="24" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Tahoma" size="12" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{documentno_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Group" evaluationGroup="documentno">
+				<reportElement x="98" y="41" width="24" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font fontName="Tahoma" size="12" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{V_SUM_QTY_PER_SO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="442" y="4" width="111" height="20"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxbaseamt}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="62" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="0" y="23" width="99" height="19"/>
+				<box leftPadding="4"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Number Items :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="41" width="99" height="20"/>
+				<box leftPadding="4"/>
+				<textElement textAlignment="Right">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty :]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="3" width="1" height="213"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="555" y="3" width="1" height="212"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="281" y="63" width="1" height="104"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="224" y="3" width="1" height="59"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="398" y="3" width="1" height="59"/>
+				<graphicElement>
+					<pen lineWidth="1.25" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="121" y="23" width="103" height="19"/>
+				<box leftPadding="8"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Items / รายการ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="121" y="41" width="102" height="20"/>
+				<box leftPadding="8"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Btls / ขวด]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="224" y="4" width="180" height="20"/>
+				<box leftPadding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รวมเงิน Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="224" y="41" width="179" height="20"/>
+				<box leftPadding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รวมเงินทั้งสิ้น Total Amount]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="398" y="23" width="45" height="19"/>
+				<box leftPadding="8"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{iso_code}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="398" y="41" width="45" height="20"/>
+				<box leftPadding="8"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{iso_code}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="442" y="41" width="111" height="20"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{grandtotal}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="63" width="101" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Delivery by]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="83" width="101" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[(Sign)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="281" y="63" width="101" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Received by]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="280" y="81" width="101" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[(Sign)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="143" width="101" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[วันที่/ Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="123" width="101" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ผู้ส่งของ/ Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="113" y="123" width="136" height="20"/>
+				<box leftPadding="8" rightPadding="8">
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="282" y="123" width="101" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ผู้ส่งของ/ Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="282" y="143" width="101" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[วันที่/ Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="102" y="123" width="11" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[(]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="250" y="123" width="11" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="114" y="143" width="135" height="20"/>
+				<box leftPadding="8" rightPadding="8">
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="149" y="143" width="11" height="20"/>
+				<box leftPadding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[/]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="193" y="143" width="11" height="20"/>
+				<box leftPadding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[/]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="532" y="123" width="11" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="431" y="143" width="11" height="20"/>
+				<box leftPadding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[/]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="475" y="143" width="11" height="20"/>
+				<box leftPadding="5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[/]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="395" y="123" width="136" height="20"/>
+				<box leftPadding="8" rightPadding="8">
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="396" y="143" width="135" height="20"/>
+				<box leftPadding="8" rightPadding="8">
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="384" y="123" width="11" height="20"/>
+				<box leftPadding="5"/>
+				<textElement>
+					<font fontName="Tahoma" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[(]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="102" y="83" width="178" height="20" forecolor="#CCCCCC"/>
+				<box leftPadding="5"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Organization's stamp]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="384" y="81" width="171" height="20" forecolor="#CCCCCC"/>
+				<box leftPadding="5"/>
+				<textElement textAlignment="Center">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Organization's stamp]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="173" width="556" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Bank Name: "+($F{bankname}==null?"":$F{bankname})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="193" width="553" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Account Name: "+($F{account_name}!=null?$F{account_name}:"")+" "+($V{v_AccountTypeDescription}!=null?$V{v_AccountTypeDescription}:"")+" Account Number:"+($F{accountno}!=null?$F{accountno}:"")]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="224" y="23" width="180" height="19"/>
+				<box leftPadding="5" rightPadding="0"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["\u0e20\u0e32\u0e29\u0e35\u0e21\u0e39\u0e25\u0e04\u0e48\u0e32\u0e40\u0e1e\u0e34\u0e48\u0e21 VAT "+$F{taxrate}+" %"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="398" y="4" width="45" height="20"/>
+				<box leftPadding="8"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{iso_code}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="442" y="23" width="111" height="19"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxamt}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="2" width="224" height="22"/>
+				<box leftPadding="5"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="12" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+</jasperReport>

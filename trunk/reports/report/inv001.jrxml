@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="stockmovement" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="40" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal"/>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal"/>
+	<parameter name="M_Product_ID" class="java.math.BigDecimal"/>
+	<parameter name="M_Warehouse_ID" class="java.math.BigDecimal"/>
+	<parameter name="p_C_Period_ID" class="java.math.BigDecimal"/>
+	<queryString>
+		<![CDATA[SELECT distinct ts.ad_client_id
+	,ac.NAME as client_name
+	,ts.ad_org_id
+	,ogi.branchno as branchno
+	,ao.NAME as org_name
+	,ttl.address1
+	,ttl.address2
+	,ttl.address3
+	,ttl.address4
+	,ttl.city
+	,ttl.postal
+	,ogi.phone
+	,ogi.fax
+	,ts.m_product_id
+	,ogi.taxid
+	,ogi.duns
+	,io.documentno as INOUT_NO
+	,iv.documentno as INTERNAL_MOVE_NO
+	,mm.documentno as MOVEMENTNO
+	,pd.NAME as product_name
+	,uom.NAME as unit_of_measure
+	,ts.movementtype
+	,ts.Movementqty
+	,ts.Movementdate
+	,wh.name as WAREHOUSE_NAME
+	,p.STARTDATE
+	,p.ENDDATE
+	,lt.VALUE as warehouse_locator
+	,(SELECT coalesce(SUM(mt.movementqty),0)
+		FROM m_transaction mt , m_locator lt
+		WHERE mt.movementdate < p.STARTDATE
+		  AND mt.m_product_id = ts.m_product_id
+		  and lt.ad_org_id = coalesce($P{AD_Org_ID},lt.ad_org_id)
+	  	  AND lt.m_locator_id = mt.m_locator_id
+		  and lt.m_warehouse_id = coalesce($P{M_Warehouse_ID},lt.m_warehouse_id)) as qty_before
+	,(SELECT SUM(mt.movementqty)
+		FROM m_transaction mt, m_locator lt
+		WHERE ts.movementdate = mt.movementdate
+		  AND mt.m_product_id = ts.m_product_id
+		  and lt.ad_org_id = coalesce($P{AD_Org_ID},lt.ad_org_id)
+		  AND lt.m_locator_id = mt.m_locator_id
+		  and lt.m_warehouse_id = coalesce($P{M_Warehouse_ID},lt.m_warehouse_id)) as today_movement_qty
+FROM m_transaction ts
+INNER JOIN m_product pd ON ts.m_product_id = pd.m_product_id
+INNER JOIN c_uom uom ON pd.c_uom_id = uom.c_uom_id
+INNER JOIN ad_client ac ON ac.ad_client_id = ts.ad_client_id
+INNER JOIN m_locator lt ON ts.m_locator_id = lt.m_locator_id
+INNER JOIN ad_org ao ON ao.ad_org_id = lt.ad_org_id
+INNER JOIN ad_orginfo ogi ON ogi.ad_org_id = ao.ad_org_id
+LEFT JOIN c_location ttl on ogi.c_location_id = ttl.c_location_id
+LEFT JOIN m_inoutline iol ON iol.m_inoutline_id = ts.m_inoutline_id
+LEFT JOIN m_inout io ON io.m_inout_id = iol.m_inout_id
+LEFT JOIN m_inventoryline ivl ON ivl.m_inventoryline_id = ts.m_inventoryline_id
+LEFT JOIN m_inventory iv ON iv.m_inventory_id = ivl.m_inventory_id
+LEFT JOIN m_movementline ml ON ml.m_movementline_id = ts.m_movementline_id
+LEFT JOIN m_movement mm ON mm.m_movement_id = ml.m_movement_id
+INNER JOIN m_warehouse wh ON wh.m_warehouse_id =  lt.m_warehouse_id
+LEFT JOIN C_PERIOD p ON ts.movementdate >= p.STARTDATE AND ts.movementdate <= p.ENDDATE
+WHERE 1=1
+  AND ts.ad_client_id = $P{AD_Client_ID}
+  AND lt.ad_org_id = coalesce($P{AD_Org_ID},ts.ad_org_id)
+  AND ts.m_product_id = coalesce($P{M_Product_ID},ts.m_product_id)
+  AND p.C_PERIOD_ID = coalesce($P{p_C_Period_ID},p.C_Period_ID)
+  AND lt.m_warehouse_id = coalesce($P{M_Warehouse_ID},lt.m_warehouse_id)
+ORDER BY ts.m_product_id ,ts.Movementdate]]>
+	</queryString>
+	<field name="ad_client_id" class="java.math.BigDecimal"/>
+	<field name="client_name" class="java.lang.String"/>
+	<field name="ad_org_id" class="java.math.BigDecimal"/>
+	<field name="org_name" class="java.lang.String"/>
+	<field name="address1" class="java.lang.String"/>
+	<field name="address2" class="java.lang.String"/>
+	<field name="address3" class="java.lang.String"/>
+	<field name="address4" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="postal" class="java.lang.String"/>
+	<field name="phone" class="java.lang.String"/>
+	<field name="fax" class="java.lang.String"/>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="taxid" class="java.lang.String"/>
+	<field name="duns" class="java.lang.String"/>
+	<field name="inout_no" class="java.lang.String"/>
+	<field name="internal_move_no" class="java.lang.String"/>
+	<field name="movementno" class="java.lang.String"/>
+	<field name="product_name" class="java.lang.String"/>
+	<field name="unit_of_measure" class="java.lang.String"/>
+	<field name="movementtype" class="java.lang.String"/>
+	<field name="movementqty" class="java.math.BigDecimal"/>
+	<field name="movementdate" class="java.sql.Timestamp"/>
+	<field name="warehouse_name" class="java.lang.String"/>
+	<field name="startdate" class="java.sql.Timestamp"/>
+	<field name="enddate" class="java.sql.Timestamp"/>
+	<field name="warehouse_locator" class="java.lang.String"/>
+	<field name="qty_before" class="java.math.BigDecimal"/>
+	<field name="today_movement_qty" class="java.math.BigDecimal"/>
+	<field name="branchno" class="java.lang.String"/>
+	<variable name="v_qty_sum_line" class="java.math.BigDecimal" resetType="Group" resetGroup="Product" calculation="Sum">
+		<variableExpression><![CDATA[$F{movementqty}]]></variableExpression>
+	</variable>
+	<group name="Product" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{m_product_id}]]></groupExpression>
+		<groupHeader>
+			<band/>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="QTY_BEFORE" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{qty_before}]]></groupExpression>
+		<groupHeader>
+			<band height="22">
+				<staticText>
+					<reportElement x="112" y="0" width="69" height="22"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="14"/>
+					</textElement>
+					<text><![CDATA[ยอดยกมา]]></text>
+				</staticText>
+				<textField pattern="#,##0.0;-#,##0.0">
+					<reportElement x="287" y="0" width="39" height="22"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="14"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty_before}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="802">
+			<staticText>
+				<reportElement x="0" y="61" width="555" height="25"/>
+				<textElement textAlignment="Center">
+					<font fontName="Cordia New" size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รายงานสินค้าและวัตถุดิบ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="103" width="85" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ชื่อผู้ประกอบการ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="133" width="94" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ชื่อสถานประกอบการ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="358" y="103" width="177" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[เลขที่ประจำตัวผู้เสียภาษีอากร]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="163" width="85" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ชื่อสินค้า / วัตถุดิบ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="185" width="57" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ชนิด/ขนาด]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="187" y="185" width="63" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ปริมาณนับเป็น]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="241" width="535" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="285" width="535" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="752" width="535" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="241" width="1" height="511"/>
+			</line>
+			<line>
+				<reportElement x="108" y="241" width="1" height="512"/>
+			</line>
+			<line>
+				<reportElement x="181" y="241" width="1" height="512"/>
+			</line>
+			<line>
+				<reportElement x="230" y="264" width="1" height="489"/>
+			</line>
+			<line>
+				<reportElement x="280" y="264" width="1" height="489"/>
+			</line>
+			<line>
+				<reportElement x="331" y="241" width="1" height="512"/>
+			</line>
+			<line>
+				<reportElement x="181" y="263" width="150" height="1"/>
+			</line>
+			<line>
+				<reportElement x="534" y="241" width="1" height="512"/>
+			</line>
+			<line>
+				<reportElement x="85" y="118" width="207" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="94" y="149" width="198" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="85" y="177" width="207" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="57" y="199" width="125" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="251" y="200" width="88" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="1" y="209" width="44" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[จากวันที่]]></text>
+			</staticText>
+			<line>
+				<reportElement x="48" y="226" width="80" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="130" y="209" width="21" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ถึง]]></text>
+			</staticText>
+			<line>
+				<reportElement x="158" y="226" width="80" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dashed"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="357" y="150" width="177" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[สำนักงานใหญ่    สาขาที่]]></text>
+			</staticText>
+		</band>
+	</background>
+	<pageHeader>
+		<band height="240">
+			<textField isBlankWhenNull="true">
+				<reportElement x="95" y="132" width="197" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{org_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="95" y="161" width="197" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{product_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="257" y="184" width="86" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{unit_of_measure}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="370" y="118" width="165" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxid}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd-MMM-yy" isBlankWhenNull="true">
+				<reportElement x="57" y="209" width="66" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{startdate}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd-MMM-yy" isBlankWhenNull="true">
+				<reportElement x="180" y="209" width="77" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{enddate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="430" y="170" width="105" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{branchno}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="95" y="102" width="197" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{org_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="44">
+			<staticText>
+				<reportElement x="0" y="0" width="112" height="44"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[เลขที่
+ใบสำคัญ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="181" y="20" width="50" height="24"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รับ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="281" y="20" width="50" height="24"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[คงเหลือ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="231" y="20" width="50" height="24"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[จ่าย]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="181" y="0" width="150" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ปริมาณสินค้า วัตถุดิบ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="112" y="0" width="69" height="44"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[วัน / เดือน / ปี]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="331" y="0" width="204" height="44"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[หมายเหตุ]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="22">
+			<textField isBlankWhenNull="true">
+				<reportElement x="6" y="0" width="95" height="22"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{inout_no}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="6" y="0" width="95" height="22"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{internal_move_no}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="6" y="0" width="95" height="22"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{movementno}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="false">
+				<reportElement x="112" y="0" width="69" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{movementdate}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="187" y="0" width="37" height="22"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[( $F{movementqty}.signum() > 0 ? $F{movementqty} : null )]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement x="240" y="0" width="31" height="22"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[( $F{movementqty}.signum() < 0 ? $F{movementqty}.abs() : null )]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="287" y="0" width="39" height="22"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_sum_line}.add($F{qty_before})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="343" y="0" width="168" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{warehouse_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="50"/>
+	</pageFooter>
+	<lastPageFooter>
+		<band height="50"/>
+	</lastPageFooter>
+</jasperReport>

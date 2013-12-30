@@ -1,0 +1,1488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pnd3" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="409"/>
+	<subDataset name="WithholdingTaxDetail">
+		<parameter name="p_c_whtaxtrans_id" class="java.math.BigDecimal">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[select wtl.datetrx ,wtl.remarks as description  , w.percent , wtl.taxbaseamt , wtl.taxamt , wt.whtaxtype
+from c_whtaxtransline wtl
+inner join c_whtaxtrans wt on wt.c_whtaxtrans_id = wtl.c_whtaxtrans_id
+inner join c_withholding w on wtl.c_withholding_id = w.c_withholding_id
+where wtl.c_whtaxtrans_id = $P{p_c_whtaxtrans_id}
+order by wtl.c_whtaxtrans_id , wtl.c_revenuetype_id]]>
+		</queryString>
+		<field name="datetrx" class="java.sql.Timestamp"/>
+		<field name="description" class="java.lang.String"/>
+		<field name="percent" class="java.math.BigDecimal"/>
+		<field name="taxbaseamt" class="java.math.BigDecimal"/>
+		<field name="taxamt" class="java.math.BigDecimal"/>
+		<field name="whtaxtype" class="java.lang.String"/>
+		<variable name="v_taxbase_decimal" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="p_C_Period_ID" class="java.math.BigDecimal"/>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal"/>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal"/>
+	<queryString>
+		<![CDATA[select t.* from (
+select oi.taxid as withholder_taxid , oi.branchno as withholder_branchno, wht.seqno,coalesce(wht.taxid,wht.citizenid) taxpayer_taxid , wht.branchno as taxpayer_branchno
+	,g.greeting , bp.name , bp.name2 ,l.address1 ,l.address2 ,l.address3 ,l.address4 , l.city , l.postal , wht.c_whtaxtrans_id,sum(wtl.taxbaseamt) as taxbaseamt , sum(wtl.taxamt) as taxamt
+from c_whtaxtrans wht
+inner join c_whtaxtransline wtl on wht.c_whtaxtrans_id = wtl.c_whtaxtrans_id
+inner join c_bpartner bp on bp.c_bpartner_id = wht.c_bpartner_id
+inner join c_bpartner_location bpl on bpl.c_bpartner_location_id = wht.c_bpartner_location_id
+inner join c_location l on bpl.c_location_id = l.c_location_id
+inner join c_period p on p.startdate <=wht.datedoc and p.enddate >= wht.datedoc and p.ad_client_id =wht.ad_client_id
+left join c_greeting g on g.c_greeting_id = bp.c_greeting_id
+inner join ad_orginfo oi on oi.ad_org_id = wht.ad_org_id
+where p.c_period_id = $P{p_C_Period_ID}
+and wht.AD_Client_ID = $P{AD_Client_ID}
+and wht.AD_Org_ID = COALESCE($P{AD_Org_ID},wht.AD_Org_ID)
+and wht.pndtype = '3'
+group by oi.taxid , oi.branchno , wht.seqno,coalesce(wht.taxid,wht.citizenid)  , wht.branchno
+	,g.greeting , bp.name , bp.name2 ,l.address1 ,l.address2 ,l.address3 ,l.address4 , l.city , l.postal , wht.c_whtaxtrans_id
+) t order by t.seqno]]>
+	</queryString>
+	<field name="withholder_taxid" class="java.lang.String"/>
+	<field name="withholder_branchno" class="java.lang.String"/>
+	<field name="seqno" class="java.math.BigDecimal"/>
+	<field name="taxpayer_taxid" class="java.lang.String"/>
+	<field name="taxpayer_branchno" class="java.lang.String"/>
+	<field name="greeting" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="name2" class="java.lang.String"/>
+	<field name="address1" class="java.lang.String"/>
+	<field name="address2" class="java.lang.String"/>
+	<field name="address3" class="java.lang.String"/>
+	<field name="address4" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="postal" class="java.lang.String"/>
+	<field name="c_whtaxtrans_id" class="java.math.BigDecimal"/>
+	<field name="taxbaseamt" class="java.math.BigDecimal"/>
+	<field name="taxamt" class="java.math.BigDecimal"/>
+	<variable name="v_taxbaseamt_pg" class="java.math.BigDecimal" resetType="Page" calculation="Sum">
+		<variableExpression><![CDATA[$F{taxbaseamt}]]></variableExpression>
+	</variable>
+	<variable name="v_taxamt_pg" class="java.math.BigDecimal" resetType="Page" calculation="Sum">
+		<variableExpression><![CDATA[$F{taxamt}]]></variableExpression>
+	</variable>
+	<background>
+		<band height="555" splitType="Stretch">
+			<rectangle>
+				<reportElement x="0" y="55" width="802" height="500"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="40" y="0" width="81" height="28"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="22" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ภ.ง.ด.3]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="248" y="0" width="106" height="28"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[เลขประจำตัวผู้เสียภาษี]]></text>
+			</staticText>
+			<elementGroup>
+				<rectangle>
+					<reportElement x="354" y="0" width="195" height="28"/>
+				</rectangle>
+				<line>
+					<reportElement x="369" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="384" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="399" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="414" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="429" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="444" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="459" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="474" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="489" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="504" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="519" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="534" y="0" width="1" height="28" forecolor="#666666"/>
+				</line>
+			</elementGroup>
+			<staticText>
+				<reportElement x="709" y="0" width="33" height="28"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[สาขาที่]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="742" y="0" width="60" height="28"/>
+			</rectangle>
+			<line>
+				<reportElement x="757" y="0" width="1" height="28" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="772" y="0" width="1" height="28" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="787" y="0" width="1" height="28" forecolor="#666666"/>
+			</line>
+			<staticText>
+				<reportElement x="631" y="30" width="33" height="22"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[แผ่นที่]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="694" y="30" width="48" height="22"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ในจำนวน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="775" y="30" width="27" height="22"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="14" isBold="false"/>
+				</textElement>
+				<text><![CDATA[แผ่น]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="664" y="30" width="30" height="22"/>
+				<box>
+					<bottomPen lineWidth="1.0" lineStyle="Dashed"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="16" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="742" y="30" width="31" height="22"/>
+				<box>
+					<bottomPen lineWidth="1.0" lineStyle="Dashed"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="16" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="120" width="802" height="1"/>
+			</line>
+			<line>
+				<reportElement x="28" y="55" width="1" height="390"/>
+			</line>
+			<staticText>
+				<reportElement x="8" y="57" width="12" height="60"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ลำดับที่]]></text>
+			</staticText>
+			<line>
+				<reportElement x="297" y="56" width="1" height="389"/>
+			</line>
+			<line>
+				<reportElement x="666" y="56" width="1" height="411"/>
+			</line>
+			<line>
+				<reportElement x="29" y="75" width="773" height="1"/>
+			</line>
+			<line>
+				<reportElement x="28" y="95" width="268" height="1"/>
+			</line>
+			<line>
+				<reportElement x="235" y="55" width="1" height="20" forecolor="#666666"/>
+			</line>
+			<staticText>
+				<reportElement x="29" y="55" width="206" height="21"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[เลขประจำตัวผู้เสียภาษีอากร (13 หลัก) * (ของผู้มีเงินได้)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="236" y="56" width="60" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[สาขาที่]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="78" width="266" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อผู้มีเงินได้]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="97" width="266" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ที่อยู่ของผู้มีเงินได้]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="298" y="56" width="368" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[รายละเอียดเกี่ยวกับการจ่ายเงิน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="667" y="55" width="135" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[รวมเงินภาษีที่หักและนำส่งในครั้งนี้]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="185" width="802" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="250" width="802" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="315" width="802" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="380" width="802" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="445" width="802" height="1"/>
+			</line>
+			<line>
+				<reportElement x="0" y="467" width="774" height="1"/>
+			</line>
+			<line>
+				<reportElement x="369" y="76" width="1" height="369"/>
+			</line>
+			<staticText>
+				<reportElement x="299" y="78" width="70" height="39"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[วัน เดือน ปี ที่จ่าย]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="370" y="79" width="155" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ประเภทเงินได้
+(ถ้ามากกว่าหนึ่งประเภทให้กรอกเรียงลงไป)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="370" y="98" width="155" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[(ถ้ามากกว่าหนึ่งประเภทให้กรอกเรียงลงไป)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="528" y="73" width="30" height="50"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[อัตรา
+ภาษี
+ร้อยละ]]></text>
+			</staticText>
+			<line>
+				<reportElement x="527" y="75" width="1" height="370"/>
+			</line>
+			<staticText>
+				<reportElement x="558" y="77" width="108" height="43"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงินที่จ่ายแต่ละประเภท
+เฉพาะคนหนึ่งๆ ในครั้งนี้]]></text>
+			</staticText>
+			<line>
+				<reportElement x="558" y="75" width="1" height="392"/>
+			</line>
+			<staticText>
+				<reportElement x="667" y="75" width="108" height="45"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงิน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="773" y="78" width="29" height="44"/>
+				<box leftPadding="0" bottomPadding="5"/>
+				<textElement verticalAlignment="Middle" rotation="Left">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[เงื่อนไข]]></text>
+			</staticText>
+			<line>
+				<reportElement x="773" y="75" width="1" height="393"/>
+			</line>
+			<ellipse>
+				<reportElement x="782" y="76" width="13" height="13" backcolor="#000000"/>
+			</ellipse>
+			<staticText>
+				<reportElement x="787" y="74" width="15" height="26" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[2]]></text>
+			</staticText>
+			<ellipse>
+				<reportElement x="401" y="82" width="13" height="13" backcolor="#000000"/>
+			</ellipse>
+			<staticText>
+				<reportElement x="406" y="80" width="15" height="26" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[1]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="399" y="446" width="159" height="24"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="15" isBold="false"/>
+				</textElement>
+				<text><![CDATA[รวมยอดเงินได้และภาษีที่นำส่ง]]></text>
+			</staticText>
+			<line>
+				<reportElement x="748" y="120" width="1" height="347" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="641" y="120" width="1" height="347" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="298" y="142" width="504" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="296" y="164" width="506" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="30" y="145" width="15" height="20"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อ]]></text>
+			</staticText>
+			<elementGroup>
+				<rectangle>
+					<reportElement x="30" y="123" width="195" height="22"/>
+				</rectangle>
+				<line>
+					<reportElement x="45" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="60" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="75" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="90" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="105" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="120" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="135" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="150" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="165" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="180" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="195" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="210" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<staticText>
+					<reportElement x="139" y="144" width="30" height="20"/>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Angsana New" size="13" isBold="false"/>
+					</textElement>
+					<text><![CDATA[ชื่อสกุล]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="29" y="165" width="22" height="20"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Angsana New" size="13" isBold="false"/>
+					</textElement>
+					<text><![CDATA[ที่อยู่]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement x="235" y="123" width="60" height="22"/>
+				</rectangle>
+				<line>
+					<reportElement x="250" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="265" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="280" y="123" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="45" y="164" width="91" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="169" y="164" width="128" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="46" y="183" width="250" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+			</elementGroup>
+			<staticText>
+				<reportElement x="0" y="0" width="40" height="28"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="16" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ใบแนบ]]></text>
+			</staticText>
+			<elementGroup>
+				<rectangle>
+					<reportElement x="30" y="188" width="195" height="22"/>
+				</rectangle>
+				<line>
+					<reportElement x="45" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="60" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="75" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="90" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="105" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="120" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="135" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="150" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="165" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="180" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="195" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="210" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<staticText>
+					<reportElement x="139" y="209" width="30" height="20"/>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Angsana New" size="13" isBold="false"/>
+					</textElement>
+					<text><![CDATA[ชื่อสกุล]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="29" y="230" width="22" height="20"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Angsana New" size="13" isBold="false"/>
+					</textElement>
+					<text><![CDATA[ที่อยู่]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement x="235" y="188" width="60" height="22"/>
+				</rectangle>
+				<line>
+					<reportElement x="250" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="265" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="280" y="188" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="45" y="229" width="91" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="169" y="229" width="128" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="46" y="248" width="250" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+			</elementGroup>
+			<elementGroup>
+				<rectangle>
+					<reportElement x="30" y="253" width="195" height="22"/>
+				</rectangle>
+				<line>
+					<reportElement x="45" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="60" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="75" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="90" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="105" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="120" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="135" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="150" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="165" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="180" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="195" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="210" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<staticText>
+					<reportElement x="139" y="274" width="30" height="20"/>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Angsana New" size="13" isBold="false"/>
+					</textElement>
+					<text><![CDATA[ชื่อสกุล]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="29" y="295" width="22" height="20"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Angsana New" size="13" isBold="false"/>
+					</textElement>
+					<text><![CDATA[ที่อยู่]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement x="235" y="253" width="60" height="22"/>
+				</rectangle>
+				<line>
+					<reportElement x="250" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="265" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="280" y="253" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="45" y="294" width="91" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="169" y="294" width="128" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="46" y="313" width="250" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+			</elementGroup>
+			<elementGroup>
+				<rectangle>
+					<reportElement x="30" y="318" width="195" height="22"/>
+				</rectangle>
+				<line>
+					<reportElement x="45" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="60" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="75" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="90" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="105" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="120" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="135" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="150" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="165" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="180" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="195" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="210" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<staticText>
+					<reportElement x="139" y="339" width="30" height="20"/>
+					<textElement verticalAlignment="Bottom">
+						<font fontName="Angsana New" size="13" isBold="false"/>
+					</textElement>
+					<text><![CDATA[ชื่อสกุล]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="29" y="360" width="22" height="20"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Angsana New" size="13" isBold="false"/>
+					</textElement>
+					<text><![CDATA[ที่อยู่]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement x="235" y="318" width="60" height="22"/>
+				</rectangle>
+				<line>
+					<reportElement x="250" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="265" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="280" y="318" width="1" height="22" forecolor="#666666"/>
+				</line>
+				<line>
+					<reportElement x="45" y="359" width="91" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="169" y="359" width="128" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="46" y="378" width="250" height="1" forecolor="#666666"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+			</elementGroup>
+			<rectangle>
+				<reportElement x="30" y="383" width="195" height="22"/>
+			</rectangle>
+			<line>
+				<reportElement x="45" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="60" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="75" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="90" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="105" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="120" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="135" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="150" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="165" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="180" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="195" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="210" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<staticText>
+				<reportElement x="139" y="404" width="30" height="20"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อสกุล]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="29" y="425" width="22" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ที่อยู่]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement x="235" y="383" width="60" height="22"/>
+			</rectangle>
+			<line>
+				<reportElement x="250" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="265" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="280" y="383" width="1" height="22" forecolor="#666666"/>
+			</line>
+			<line>
+				<reportElement x="45" y="424" width="91" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="169" y="424" width="128" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="46" y="443" width="250" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="299" y="207" width="504" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="297" y="229" width="506" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="298" y="294" width="504" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="297" y="273" width="505" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="297" y="338" width="505" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="298" y="359" width="504" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="297" y="424" width="504" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="296" y="403" width="505" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="5" y="468" width="43" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[หมายเหตุ]]></text>
+			</staticText>
+			<ellipse>
+				<reportElement x="54" y="471" width="13" height="13" backcolor="#000000"/>
+			</ellipse>
+			<staticText>
+				<reportElement x="59" y="469" width="15" height="26" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[1]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="73" y="467" width="347" height="42"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Angsana New" size="10" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[ให้ระบุว่าจ่ายเป็นอะไร เช่น ค่าเช่าอาคาร ค่าสอบบัญชี ค่าวิชาชีพของแพทย์
+ค่าก่อสร้าง รางวัล ส่วนลดหรือประโยชน์ใดๆ เนื่องจากการส่งเสริมการขาย รางวัลในการประกวด
+การแข่งขัน การชิงโชค ค่าจ้างแสดงภาพยนต์ ร้องเพลงดนตรี ค่าจ้างทำของ ค่าจ้างโฆษณา ค่าขนส่งสินค้า ฯลฯ]]></text>
+			</staticText>
+			<ellipse>
+				<reportElement x="55" y="501" width="13" height="13" backcolor="#000000"/>
+			</ellipse>
+			<staticText>
+				<reportElement x="60" y="499" width="15" height="26" forecolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[2]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="75" y="500" width="346" height="13"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Angsana New" size="10" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[เงื่อนไขการหักภาษี ให้กรอกดังนี้ * หัก ณ ที่จ่าย กรอก 1 * ออกให้ตลอดไปกรอก 2 * ออกให้ครั้งเดียว กรอก 3]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="74" y="510" width="346" height="13"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Angsana New" size="10" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[เลขประจำตัวผู้เสียภาษีอากร (13 หลัก)* หมายถึง]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="73" y="519" width="348" height="36"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Angsana New" size="10" isBold="false" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[1. กรณีบุคคลธรรมดา ให้ใช้เลขประจำตัวประชาชนที่กรมการปกครองออกให้
+2. กรณีนิติบุคคล ให้ใช้เลขทะเบียนนิติคุคคลที่กรมพัฒนาธุรกิจการค้าออกให้
+3. กรณีอื่นๆนอกจาก 1. และ 2. ให้ใช้เลขประจำตัวผู้เสียภาษีอากร (13 หลัก)ที่กรมสรรพากรออกให้]]></text>
+			</staticText>
+			<line>
+				<reportElement x="444" y="467" width="1" height="88" forecolor="#666666"/>
+			</line>
+			<staticText>
+				<reportElement x="559" y="477" width="30" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ลงชื่อ]]></text>
+			</staticText>
+			<line>
+				<reportElement x="589" y="493" width="168" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="757" y="477" width="37" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ผู้จ่ายเงิน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="559" y="497" width="30" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[(]]></text>
+			</staticText>
+			<line>
+				<reportElement x="589" y="513" width="168" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="757" y="497" width="37" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="549" y="517" width="40" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ตำแหน่ง]]></text>
+			</staticText>
+			<line>
+				<reportElement x="589" y="534" width="198" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="549" y="535" width="40" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ยื่นวันที่]]></text>
+			</staticText>
+			<line>
+				<reportElement x="591" y="552" width="30" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="620" y="535" width="25" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[เดือน]]></text>
+			</staticText>
+			<line>
+				<reportElement x="645" y="551" width="78" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="723" y="535" width="19" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[พศ.]]></text>
+			</staticText>
+			<line>
+				<reportElement x="742" y="551" width="46" height="1" forecolor="#666666"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<ellipse>
+				<reportElement x="476" y="495" width="45" height="45"/>
+			</ellipse>
+			<staticText>
+				<reportElement x="476" y="494" width="44" height="50" forecolor="#666666"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="9" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ประทับตรา
+นิติบุคคล
+(ถ้ามี)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="210" width="15" height="20"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="275" width="15" height="20"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="338" width="15" height="20"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="405" width="15" height="20"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Angsana New" size="13" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อ]]></text>
+			</staticText>
+		</band>
+	</background>
+	<pageHeader>
+		<band height="120" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="354" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>0?$F{withholder_taxid}.substring( 0, 1 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="369" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>1?$F{withholder_taxid}.substring( 1, 2 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="384" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>2?$F{withholder_taxid}.substring( 2, 3 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="399" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>3?$F{withholder_taxid}.substring( 3, 4 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="460" y="0" width="14" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>7?$F{withholder_taxid}.substring( 7, 8 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="415" y="0" width="14" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>4?$F{withholder_taxid}.substring( 4, 5 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="444" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>6?$F{withholder_taxid}.substring( 6, 7 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="430" y="0" width="14" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>5?$F{withholder_taxid}.substring( 5, 6 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="474" y="0" width="14" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>8?$F{withholder_taxid}.substring( 8, 9 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="534" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>12?$F{withholder_taxid}.substring( 12, 13 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="520" y="0" width="14" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>11?$F{withholder_taxid}.substring( 11, 12 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="504" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>10?$F{withholder_taxid}.substring(10, 11 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="487" y="0" width="16" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_taxid}.length()>9?$F{withholder_taxid}.substring( 9, 10 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="787" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_branchno}.length()>3?$F{withholder_branchno}.substring( 3, 4 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="742" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_branchno}.length()>0?$F{withholder_branchno}.substring( 0, 1 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="772" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_branchno}.length()>2?$F{withholder_branchno}.substring( 2, 3 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="757" y="0" width="15" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{withholder_branchno}.length()>1?$F{withholder_branchno}.substring( 1, 2 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="664" y="27" width="30" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report" isBlankWhenNull="true">
+				<reportElement x="742" y="27" width="30" height="28"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="65">
+			<textField isBlankWhenNull="true">
+				<reportElement x="75" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>3?$F{taxpayer_taxid}.substring( 3, 4 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="30" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>0?$F{taxpayer_taxid}.substring( 0, 1 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="196" y="0" width="14" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>11?$F{taxpayer_taxid}.substring( 11, 12 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="60" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>2?$F{taxpayer_taxid}.substring( 2, 3 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="163" y="0" width="16" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>9?$F{taxpayer_taxid}.substring( 9, 10 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="150" y="0" width="14" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>8?$F{taxpayer_taxid}.substring( 8, 9 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="106" y="0" width="14" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>5?$F{taxpayer_taxid}.substring( 5, 6 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="91" y="0" width="14" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>4?$F{taxpayer_taxid}.substring( 4, 5 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="136" y="0" width="14" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>7?$F{taxpayer_taxid}.substring( 7, 8 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="180" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>10?$F{taxpayer_taxid}.substring(10, 11 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="120" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>6?$F{taxpayer_taxid}.substring( 6, 7 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="210" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>12?$F{taxpayer_taxid}.substring( 12, 13 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="45" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_taxid}.length()>1?$F{taxpayer_taxid}.substring( 1, 2 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="11" width="20" height="33"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{seqno}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="44" y="22" width="81" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="11"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[($F{greeting}==null?"":$F{greeting})+$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="166" y="22" width="114" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="11"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{name2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="47" y="44" width="236" height="18"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Angsana New" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[($F{address1}!=null?$F{address1}:"")+
+($F{address2}!=null?" "+$F{address2}:"")+
+($F{address3}!=null?" "+$F{address3}:"")+
+($F{address4}!=null?" "+$F{address4}:"")+
+($F{city}!=null?" "+$F{city}:"")+
+($F{postal}!=null?" "+$F{postal}:"")]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="267" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_branchno}.length()>2?$F{taxpayer_branchno}.substring( 2, 3 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="252" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_branchno}.length()>1?$F{taxpayer_branchno}.substring( 1, 2 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="237" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_branchno}.length()>0?$F{taxpayer_branchno}.substring( 0, 1 ):""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="282" y="0" width="15" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="14"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{taxpayer_branchno}.length()>3?$F{taxpayer_branchno}.substring( 3, 4 ):""]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement key="table" x="299" y="0" width="503" height="62"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="WithholdingTaxDetail">
+						<datasetParameter name="p_c_whtaxtrans_id">
+							<datasetParameterExpression><![CDATA[$F{c_whtaxtrans_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="70">
+						<jr:detailCell height="22" rowSpan="1">
+							<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="70" height="20"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Angsana New" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{datetrx}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="155">
+						<jr:detailCell height="22" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="155" height="20"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Angsana New" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{description}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="30">
+						<jr:detailCell height="22" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="30" height="20"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Angsana New" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{percent}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108">
+						<jr:detailCell height="22" rowSpan="1">
+							<textField pattern="#,##0;-#,##0" isBlankWhenNull="true">
+								<reportElement x="10" y="0" width="66" height="20"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Angsana New" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxbaseamt}]]></textFieldExpression>
+							</textField>
+							<textField pattern=".00" isBlankWhenNull="true">
+								<reportElement x="77" y="0" width="31" height="20"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Angsana New" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getDecimal($F{taxbaseamt},2)]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="108">
+						<jr:detailCell height="22" rowSpan="1">
+							<textField pattern="#,##0;-#,##0" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="73" height="20"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Angsana New" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxamt}]]></textFieldExpression>
+							</textField>
+							<textField pattern=".00" isBlankWhenNull="true">
+								<reportElement x="80" y="0" width="21" height="20"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle">
+									<font fontName="Angsana New" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getDecimal($F{taxamt},2)]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="30">
+						<jr:detailCell height="22" rowSpan="1">
+							<textField pattern="#,##0" isBlankWhenNull="true">
+								<reportElement x="0" y="0" width="30" height="20"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font fontName="Angsana New" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{whtaxtype}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="108" splitType="Stretch">
+			<textField pattern="#,##0;-#,##0">
+				<reportElement x="552" y="0" width="79" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_taxbaseamt_pg}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;-#,##0" isBlankWhenNull="true">
+				<reportElement x="674" y="0" width="60" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_taxamt_pg}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;-#,##0">
+				<reportElement x="640" y="0" width="21" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getDecimal($V{v_taxbaseamt_pg},2)]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;-#,##0">
+				<reportElement x="743" y="0" width="21" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Angsana New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getDecimal($V{v_taxamt_pg},2)]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

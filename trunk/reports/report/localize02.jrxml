@@ -27,7 +27,8 @@ INNER JOIN C_BPartner_Location bpl ON bpl.c_Bpartner_Location_Id = iv.c_Bpartner
 INNER JOIN C_Location bplo ON bpl.c_Location_Id = bplo.c_location_id
 INNER JOIN C_Tax t ON t.c_Tax_Id = it.c_Tax_Id
 LEFT JOIN C_InvoiceTax riv ON riv.C_Invoice_ID = iv.Ref_Invoice_Id AND riv.c_Tax_Id = t.c_Tax_Id
-INNER JOIN C_Period pd ON it.datetaxinvoice >=pd.StartDate AND it.DateTaxInvoice <= pd.Enddate AND pd.Ad_Client_Id = it.Ad_Client_Id
+/*INNER JOIN C_Period pd ON it.datetaxinvoice >=pd.StartDate AND it.DateTaxInvoice <= pd.Enddate AND pd.Ad_Client_Id = it.Ad_Client_Id*/
+INNER JOIN C_Period pd ON pd.C_Period_ID = it.C_Period_ID
 WHERE iv.IsSOTrx = 'Y'
 AND iv.DocStatus IN ('CO','VO','RE')
 AND iv.Ad_Client_Id = $P{AD_Client_ID}
@@ -338,139 +339,31 @@ AND iv.c_Bpartner_Id = COALESCE($P{C_BPartner_ID},iv.c_Bpartner_Id)]]>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{ORGANIZATION_NAME}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="346" y="47" width="110" height="20"/>
+				<reportElement x="365" y="47" width="103" height="20"/>
 				<textElement>
 					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[เลขประจำตัวผู้เสียภาษีอากร]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="346" y="66" width="90" height="20"/>
+				<reportElement x="365" y="67" width="90" height="20"/>
 				<textElement>
 					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[สำนักงานใหญ่  สาขาที่]]></text>
 			</staticText>
 			<textField pattern="">
-				<reportElement x="458" y="47" width="10" height="19"/>
+				<reportElement x="468" y="47" width="84" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid"/>
 					<leftPen lineWidth="0.5" lineStyle="Solid"/>
 					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 0 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="467" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 1 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="476" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 2 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="485" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 3 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="494" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 4 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="503" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 5 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="512" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 6 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="521" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 7 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="530" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 8 )]]></textFieldExpression>
-			</textField>
-			<textField pattern="">
-				<reportElement x="539" y="47" width="10" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Solid"/>
-					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
-					<rightPen lineWidth="0.5" lineStyle="Solid"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Cordia New" size="12" pdfFontName="cordianew" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}.charAt( 9 )]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{TAXID}]]></textFieldExpression>
 			</textField>
 			<textField pattern="">
 				<reportElement x="0" y="85" width="324" height="20"/>
@@ -480,7 +373,7 @@ AND iv.c_Bpartner_Id = COALESCE($P{C_BPartner_ID},iv.c_Bpartner_Id)]]>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{ORG_ADDRESS1}+($F{ORG_ADDRESS2}!=null?" "+$F{ORG_ADDRESS2}:"")+($F{ORG_ADDRESS3}!=null?" "+$F{ORG_ADDRESS3}:"")+($F{ORG_ADDRESS4}!=null?" "+$F{ORG_ADDRESS4}:"")+($F{ORG_POSTAL}!=null?" "+$F{ORG_POSTAL}:"")]]></textFieldExpression>
 			</textField>
 			<textField pattern="">
-				<reportElement x="346" y="85" width="10" height="19"/>
+				<reportElement x="365" y="85" width="10" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid"/>
 					<leftPen lineWidth="0.5" lineStyle="Solid"/>
@@ -492,7 +385,7 @@ AND iv.c_Bpartner_Id = COALESCE($P{C_BPartner_ID},iv.c_Bpartner_Id)]]>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{BRANCHNO}.charAt( 0 )]]></textFieldExpression>
 			</textField>
 			<textField pattern="">
-				<reportElement x="373" y="85" width="10" height="19"/>
+				<reportElement x="392" y="85" width="10" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid"/>
 					<leftPen lineWidth="0.5" lineStyle="Solid"/>
@@ -505,7 +398,7 @@ AND iv.c_Bpartner_Id = COALESCE($P{C_BPartner_ID},iv.c_Bpartner_Id)]]>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{BRANCHNO}.charAt( 3 )]]></textFieldExpression>
 			</textField>
 			<textField pattern="">
-				<reportElement x="355" y="85" width="10" height="19"/>
+				<reportElement x="374" y="85" width="10" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid"/>
 					<leftPen lineWidth="0.5" lineStyle="Solid"/>
@@ -517,7 +410,7 @@ AND iv.c_Bpartner_Id = COALESCE($P{C_BPartner_ID},iv.c_Bpartner_Id)]]>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{BRANCHNO}.charAt( 1 )]]></textFieldExpression>
 			</textField>
 			<textField pattern="">
-				<reportElement x="364" y="85" width="10" height="19"/>
+				<reportElement x="383" y="85" width="10" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Solid"/>
 					<leftPen lineWidth="0.5" lineStyle="Solid"/>
