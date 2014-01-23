@@ -18,6 +18,7 @@ import org.compiere.util.CPreparedStatement;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
 
+import org.adempiere.exceptions.AdempiereException;
 import org.apache.commons.lang.StringUtils;
 
 public class SpecialInvoiceGenerate extends SvrProcess {
@@ -99,18 +100,19 @@ public class SpecialInvoiceGenerate extends SvrProcess {
 				invoiceList = invoiceList +","+ rset.getString("ids");
 			
 			if(!line.save(get_TrxName())){
-				return ERR_CANNOT_SAVE_INVOICELINE;
+				throw new AdempiereException( ERR_CANNOT_SAVE_INVOICELINE);
 			}
 		}
 		
 		if(invoice == null)
-			return ERR_NO_INVOICE_WAS_GENERATED;
+			throw new AdempiereException(ERR_NO_INVOICE_WAS_GENERATED);
+			//return ERR_NO_INVOICE_WAS_GENERATED;
 		
 		if("CO".equals(p_DocStatus))
 			invoice.completeIt();
 		
 		if(!invoice.save(get_TrxName()))
-			return ERR_CANNOT_SAVE_INVOICE;
+			throw new AdempiereException(ERR_CANNOT_SAVE_INVOICE);
 		
 		// Update Invoice Was Was Generated
 		String updateSql = "UPDATE C_Invoice SET IsGenerated = 'Y' WHERE C_Invoice_ID IN ("+invoiceList+")";
