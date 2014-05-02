@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fontFamilies>
+
+	<fontFamily name="Cordia New">
+		<normal>cordia/CORDIA.TTF</normal>
+		<italic>cordia/CORDIAI.TTF</italic>
+		<bold>cordia/CORDIAB.TTF</bold>		
+		<pdfEncoding>Identity-H</pdfEncoding>
+		<pdfEmbedded>true</pdfEmbedded>
+		<exportFonts>
+			<export key="net.sf.jasperreports.html">Cordia New</export>
+			<export key="net.sf.jasperreports.xhtml">Cordia New</export>
+		</exportFonts>
+	</fontFamily>
+	<fontFamily name="CordiaUPC">
+		<normal>cordia/CORDIAU.TTF</normal>
+		<italic>cordia/CORDIAUI.TTF</italic>
+		<bold>cordia/CORDIAUB.TTF</bold>		
+		<pdfEncoding>Identity-H</pdfEncoding>
+		<pdfEmbedded>true</pdfEmbedded>
+		<exportFonts>
+			<export key="net.sf.jasperreports.html">CordiaUPC</export>
+			<export key="net.sf.jasperreports.xhtml">CordiaUPC</export>
+		</exportFonts>
+	</fontFamily>
+
+</fontFamilies>

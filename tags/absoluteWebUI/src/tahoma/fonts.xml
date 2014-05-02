@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fontFamilies>
+
+	<fontFamily name="Tahoma">
+		<normal>tahoma/TAHOMA.TTF</normal>
+		<bold>tahoma/tahomabd.TTF</bold>		
+		<pdfEncoding>Identity-H</pdfEncoding>
+		<pdfEmbedded>true</pdfEmbedded>
+		<exportFonts>
+			<export key="net.sf.jasperreports.html">Tahoma</export>
+			<export key="net.sf.jasperreports.xhtml">Tahoma</export>
+		</exportFonts>
+	</fontFamily>	
+
+</fontFamilies>
