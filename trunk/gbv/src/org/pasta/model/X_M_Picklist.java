@@ -31,7 +31,7 @@ public class X_M_Picklist extends PO implements I_M_Picklist, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20140120L;
+	private static final long serialVersionUID = 20140123L;
 
     /** Standard Constructor */
     public X_M_Picklist (Properties ctx, int M_Picklist_ID, String trxName)
@@ -42,6 +42,12 @@ public class X_M_Picklist extends PO implements I_M_Picklist, I_Persistent
 			setC_Order_ID (0);
 			setDocumentNo (null);
 			setM_Picklist_ID (0);
+			setPickBy (0);
+			setPickDate (new Timestamp( System.currentTimeMillis() ));
+			setPrintBarcode (null);
+// N
+			setPrintIt (null);
+// N
 			setProcessed (false);
 // N
         } */
@@ -103,23 +109,6 @@ public class X_M_Picklist extends PO implements I_M_Picklist, I_Persistent
 		return ii.intValue();
 	}
 
-	/** Set Document Date.
-		@param DateDoc 
-		Date of the Document
-	  */
-	public void setDateDoc (Timestamp DateDoc)
-	{
-		set_Value (COLUMNNAME_DateDoc, DateDoc);
-	}
-
-	/** Get Document Date.
-		@return Date of the Document
-	  */
-	public Timestamp getDateDoc () 
-	{
-		return (Timestamp)get_Value(COLUMNNAME_DateDoc);
-	}
-
 	/** Set Description.
 		@param Description 
 		Optional short description of the record
@@ -172,6 +161,45 @@ public class X_M_Picklist extends PO implements I_M_Picklist, I_Persistent
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
+	}
+
+	public org.compiere.model.I_AD_User getPic() throws RuntimeException
+    {
+		return (org.compiere.model.I_AD_User)MTable.get(getCtx(), org.compiere.model.I_AD_User.Table_Name)
+			.getPO(getPickBy(), get_TrxName());	}
+
+	/** Set PickBy.
+		@param PickBy PickBy	  */
+	public void setPickBy (int PickBy)
+	{
+		set_Value (COLUMNNAME_PickBy, Integer.valueOf(PickBy));
+	}
+
+	/** Get PickBy.
+		@return PickBy	  */
+	public int getPickBy () 
+	{
+		Integer ii = (Integer)get_Value(COLUMNNAME_PickBy);
+		if (ii == null)
+			 return 0;
+		return ii.intValue();
+	}
+
+	/** Set Pick Date.
+		@param PickDate 
+		Date/Time when picked for Shipment
+	  */
+	public void setPickDate (Timestamp PickDate)
+	{
+		set_Value (COLUMNNAME_PickDate, PickDate);
+	}
+
+	/** Get Pick Date.
+		@return Date/Time when picked for Shipment
+	  */
+	public Timestamp getPickDate () 
+	{
+		return (Timestamp)get_Value(COLUMNNAME_PickDate);
 	}
 
 	/** Set Print Barcode.

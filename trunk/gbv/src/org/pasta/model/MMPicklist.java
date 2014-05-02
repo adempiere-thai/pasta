@@ -9,13 +9,15 @@ import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.model.MClient;
+import org.compiere.model.MInOut;
+import org.compiere.model.MInOutLine;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MStorage;
 import org.compiere.model.MWarehouse;
 import org.compiere.model.Query;
 import org.compiere.util.DB;
-import org.compiere.util.Env;
+import org.compiere.util.Msg;
 
 public class MMPicklist extends X_M_Picklist {
 
@@ -24,11 +26,13 @@ public class MMPicklist extends X_M_Picklist {
 	 */
 	private static final long serialVersionUID = 8217429824971523609L;
 	private static final String ERR_CANNOT_SAVE_PICKLINE = "CANNOT_SAVE_PICKLIST_LINE";
+	
+	MOrder order = null;
 
 	public MMPicklist(Properties ctx, int M_Picklist_ID, String trxName) {
 		super(ctx, M_Picklist_ID, trxName);
 
-		setDateDoc(new Timestamp(System.currentTimeMillis()));
+		setPickDate(new Timestamp(System.currentTimeMillis()));
 	}
 
 	public MMPicklist(Properties ctx, ResultSet rs, String trxName) {
@@ -51,59 +55,57 @@ public class MMPicklist extends X_M_Picklist {
 
 		return (MMPicklist) obj;
 	}
+	
+	protected boolean beforeSave(boolean newRecord) {
+		// TODO Auto-generated method stub
+		if(newRecord){
+			this.setDocumentNo("PL"+getC_Order().getDocumentNo()); 
+		}
+		
+		return true;
+	}
 
-	public void pickItemsFromOrder(MOrder order, int AD_Org_ID)
-			throws Exception {
+	List<MMPicklistLine> lines = null;
+
+	public int pickItemsFromOrder(MOrder order, int AD_Org_ID) throws Exception {
 		MOrderLine[] olines = order.getLines();
+		MWarehouse wh = MWarehouse.get(order.getCtx(),
+				order.getM_Warehouse_ID());
 
-		MWarehouse[] whs = MWarehouse.getForOrg(getCtx(), AD_Org_ID);
-		if (whs == null || whs.length <= 0)
-			throw new AdempiereException("ERR_NO_WAREHOUSE_FOR_ORG");
-
-		MWarehouse wh = whs[0];
-
+		lines = new ArrayList<MMPicklistLine>();
+		
 		int line = 0;
-		BigDecimal currentPackQty = Env.ZERO;
-		BigDecimal packLimit = BigDecimal.valueOf(6d);
-		int packNo = 1;
-
 		for (MOrderLine oline : olines) {
 			BigDecimal orderdQty = oline.getQtyReserved();
 			BigDecimal remainingQty = orderdQty;
-			// Find Total Pack For Order Line
-			int no_of_packs = orderdQty.add(currentPackQty).divide(packLimit, 0, BigDecimal.ROUND_UP).intValue();
 
-			MStorage[] storages = MStorage.getWarehouse(getCtx(), wh
-					.getM_Warehouse_ID(), oline.getM_Product_ID(), 0,
-					new Timestamp(System.currentTimeMillis()),
-					MClient.MMPOLICY_FiFo.equals(oline.getProduct()
-							.getMMPolicy()), true, 0, get_TrxName());
+			if (remainingQty.signum() > 0) {
+				MStorage[] storages = MStorage.getWarehouse(getCtx(), wh
+						.getM_Warehouse_ID(), oline.getM_Product_ID(), 0,
+						new Timestamp(System.currentTimeMillis()),
+						MClient.MMPOLICY_FiFo.equals(oline.getProduct()
+								.getMMPolicy()), true, 0, get_TrxName());
 
-			for(int n = 0; n < no_of_packs;n++){
-				BigDecimal pickQty =  remainingQty;
-				if(currentPackQty.signum() != 0 ){ // If Previous Pack Still Have Space
-					pickQty = packLimit.subtract(currentPackQty);
-				}
-				else{
-					// If Remaining Qty More Than Pack Qty 
-					if(remainingQty.compareTo(packLimit) > 0)
-						pickQty = packLimit;
-				}
-				
-				currentPackQty = currentPackQty.add(pickQty);
-				
 				for (MStorage storage : storages) {
 					int M_Locator_ID = storage.getM_Locator_ID();
 
+					String warehouseName = wh.getName();
+					String locator = storage.getM_Locator().getValue();
 					String sql = "SELECT COALESCE(SUM(pkl.qty),0) FROM M_PicklistLine pkl , C_OrderLine ol WHERE pkl.C_OrderLine_ID = ol.C_OrderLine_ID AND ol.qtyreserved > 0 AND pkl.M_Warehouse_ID = ? AND pkl.M_Locator_ID = ?";
-					BigDecimal pickReserveQty = BigDecimal.valueOf(DB.getSQLValue(
-							order.get_TrxName(), sql, wh.getM_Warehouse_ID(),
-							M_Locator_ID));
+					BigDecimal pickReserveQty = BigDecimal.valueOf(DB
+							.getSQLValue(order.get_TrxName(), sql,
+									wh.getM_Warehouse_ID(), M_Locator_ID));
+
 					BigDecimal availableQty = storage.getQtyOnHand().subtract(
 							pickReserveQty);
 
-					if (availableQty.signum() > 0) {
+					log.fine(order.getDocumentNo() + " "
+							+ oline.getProduct().getName() + " Location["
+							+ warehouseName + ":" + locator + "]"
+							+ " Qty Pick Reserverd [" + pickReserveQty
+							+ "] Qty Available [" + availableQty + "]");
 
+					if (availableQty.signum() > 0) {
 						line = line + 10;
 						MMPicklistLine pline = new MMPicklistLine(this);
 						pline.setC_OrderLine_ID(oline.getC_OrderLine_ID());
@@ -113,53 +115,94 @@ public class MMPicklist extends X_M_Picklist {
 						pline.setC_UOM_ID(oline.getC_UOM_ID());
 						pline.setLine(line);
 
-						BigDecimal actualQty = pickQty; // Actual Pick Qty In Line used to substract from remaining Qty
-						// Order Qty is Less Than or Equals To Zero Then Generate
-						// Pick Line From All Order Qty
-						if (availableQty.compareTo(pickQty) >= 0) {
-							pline.setQty(pickQty);
+						/*
+						 * Case 1 : Available Qty is enough for Order Reserved
+						 * Qty Remaining Then set PickQty as Order Reserved Qty
+						 * and Break Storage Loop 
+						 * Case 2 : Available Qty is not
+						 * enough for Order Reserved Qty Remaining Then set
+						 * PickQty as Available Qty
+						 */
+						if (availableQty.compareTo(remainingQty) >= 0) {
+							pline.setQty(remainingQty);
+							remainingQty = remainingQty.subtract(remainingQty);
 						} else {
 							pline.setQty(availableQty);
-							actualQty = availableQty;
+							remainingQty = remainingQty.subtract(availableQty);
 						}
 
-						pickQty = pickQty.subtract(availableQty);
-						
-						pline.setPackingNo(order.getDocumentNo()+"-"+packNo);
-
 						if (!pline.save(order.get_TrxName()))
-							throw new AdempiereException(ERR_CANNOT_SAVE_PICKLINE);
+							throw new AdempiereException(Msg.getMsg(getCtx(),
+									ERR_CANNOT_SAVE_PICKLINE));
 						
-						remainingQty = remainingQty.subtract(actualQty);
+						lines.add(pline);
 					}
 
-					if (pickQty.signum() <= 0)
+					if (remainingQty.signum() <= 0)
 						break;
 				}
-				
-				if(currentPackQty.equals(packLimit)){
-					packNo++;
-					currentPackQty = Env.ZERO;
+
+				// Qty is not Enough Create new Line
+				if (remainingQty.signum() > 0) {
+					line = line + 10;
+					MMPicklistLine pline = new MMPicklistLine(this);
+					pline.setC_OrderLine_ID(oline.getC_OrderLine_ID());
+					pline.setM_Product_ID(oline.getM_Product_ID());
+					pline.setC_UOM_ID(oline.getC_UOM_ID());
+					pline.setLine(line);
+					pline.setQty(remainingQty);
+					pline.setRemarks("Item is not enough!");
+
+					if (!pline.save(order.get_TrxName()))
+						throw new AdempiereException(Msg.getMsg(getCtx(),
+								ERR_CANNOT_SAVE_PICKLINE));
+					
+					lines.add(pline);
 				}
 			}
-			
-			// Generate Not enough Line Items
-			if(remainingQty.signum() > 0){
-				line = line + 10;
-				MMPicklistLine pline = new MMPicklistLine(this);
-				pline.setC_OrderLine_ID(oline.getC_OrderLine_ID());
-				pline.setM_Product_ID(oline.getM_Product_ID());
-				//pline.setM_Warehouse_ID(storage.getM_Warehouse_ID());
-				//pline.setM_Locator_ID(storage.getM_Locator_ID());
-				pline.setC_UOM_ID(oline.getC_UOM_ID());
-				pline.setLine(line);
-				pline.setQty(remainingQty);
-				pline.setRemarks("Item is not enough!");
-				
-				if (!pline.save(order.get_TrxName()))
-					throw new AdempiereException(ERR_CANNOT_SAVE_PICKLINE);
 
-			}
 		}
+
+		return line;
+	}
+	
+	public List<MMPicklistLine> getLines(){
+		return lines;
+	}
+
+	public void setOrder(MOrder order) {
+		this.order = order;
+	}
+
+	public MOrder getOrder() {
+		// TODO Auto-generated method stub
+		return this.order;
+	}
+
+	public int pickItemsFromShipedOrder(MInOut shipment, int p_AD_Org_ID) {
+		// TODO Auto-generated method stub
+		lines = new ArrayList<MMPicklistLine>();
+		MInOutLine[] shipLines = shipment.getLines();
+		int line = 0;
+		
+		for(MInOutLine shipLine : shipLines ){
+			line =  line +10;
+			MMPicklistLine pline = new MMPicklistLine(this);
+			pline.setC_OrderLine_ID(shipLine.getC_OrderLine_ID());
+			pline.setM_Product_ID(shipLine.getM_Product_ID());
+			pline.setM_Warehouse_ID(shipLine.getM_Warehouse_ID());
+			pline.setM_Locator_ID(shipLine.getM_Locator_ID());
+			pline.setC_UOM_ID(shipLine.getC_UOM_ID());
+			pline.setLine(line);
+			pline.setQty(shipLine.getQtyEntered());
+			
+			if (!pline.save(order.get_TrxName()))
+				throw new AdempiereException(Msg.getMsg(getCtx(),
+						ERR_CANNOT_SAVE_PICKLINE));
+			
+			lines.add(pline);
+		}		
+		
+		return shipLines.length;
 	}
 }

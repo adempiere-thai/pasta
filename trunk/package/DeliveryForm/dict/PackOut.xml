@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<adempiereAD Name="DeliveryForm" Version="1" CompVer="Release 3.3.0" DataBase="1" Description="DeliveryForm" creator="pasuwatw@gmail.com" creatorcontact="pasuwatw@gmail.com" createddate="2014-04-22 00:17:07" updateddate="2014-04-22 00:17:07" PackOutVer="005">
+    <menu ADMenuNameID="Delivery" ADWindowNameID="" ADProcessNameID="" ADFormNameID="Delivery" ADTaskNameID="" ADWorkbenchNameID="" ADWorkflowNameID="" AD_Menu_ID="80044" ADParentSeqno="999" Action="X" Description="" EntityType="pasta" isActive="true" isReadOnly="false" isSOTrx="true" isSummary="false">
+        <form ADFormNameID="Delivery" AD_Form_ID="80000" Classname="org.pasta.apps.form.VDelivery" isBetaFunctionality="false" AccessLevel="3" Description="Delivery" isActive="true" EntityType="pasta" Help="" Name="Delivery"/>
+    </menu>
+</adempiereAD>

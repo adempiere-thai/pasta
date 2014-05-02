@@ -314,7 +314,7 @@ ORDER BY o.DocumentNo DESC , ol.LINE]]>
 			</textField>
 			<staticText>
 				<reportElement x="419" y="9" width="136" height="29">
-					<printWhenExpression><![CDATA["OB".equals($F{DOCSUBTYPESO})]]></printWhenExpression>
+					<printWhenExpression><![CDATA["OB".equals($F{DOCSUBTYPESO}) || "ON".equals($F{DOCSUBTYPESO})]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Cordia New" size="26" isBold="true" pdfEncoding="Identity-H"/>
@@ -404,7 +404,7 @@ ORDER BY o.DocumentNo DESC , ol.LINE]]>
 			</image>
 			<staticText>
 				<reportElement x="419" y="41" width="136" height="29">
-					<printWhenExpression><![CDATA["OB".equals($F{DOCSUBTYPESO})]]></printWhenExpression>
+					<printWhenExpression><![CDATA["OB".equals($F{DOCSUBTYPESO}) || "ON".equals($F{DOCSUBTYPESO})]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Cordia New" size="26" isBold="true" pdfEncoding="Identity-H"/>
@@ -413,7 +413,7 @@ ORDER BY o.DocumentNo DESC , ol.LINE]]>
 			</staticText>
 			<staticText>
 				<reportElement x="419" y="41" width="136" height="29">
-					<printWhenExpression><![CDATA[!"OB".equals($F{DOCSUBTYPESO})]]></printWhenExpression>
+					<printWhenExpression><![CDATA[!"OB".equals($F{DOCSUBTYPESO}) &&  !"ON".equals($F{DOCSUBTYPESO})]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Cordia New" size="26" isBold="true" pdfEncoding="Identity-H"/>
@@ -422,7 +422,7 @@ ORDER BY o.DocumentNo DESC , ol.LINE]]>
 			</staticText>
 			<staticText>
 				<reportElement x="419" y="9" width="136" height="29">
-					<printWhenExpression><![CDATA[!"OB".equals($F{DOCSUBTYPESO})]]></printWhenExpression>
+					<printWhenExpression><![CDATA[!"OB".equals($F{DOCSUBTYPESO}) && !"ON".equals($F{DOCSUBTYPESO})]]></printWhenExpression>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Cordia New" size="26" isBold="true" pdfEncoding="Identity-H"/>
@@ -662,14 +662,14 @@ ORDER BY o.DocumentNo DESC , ol.LINE]]>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{PRICELIST}]]></textFieldExpression>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{PRICEENTERED}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0.00;-#,##0.00">
 				<reportElement x="453" y="0" width="42" height="18"/>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Cordia New" size="12" pdfEncoding="Identity-H"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{DISCOUNT_AMT}]]></textFieldExpression>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{DISCOUNT_AMT}.signum()<0?BigDecimal.ZERO:$F{DISCOUNT_AMT}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0.00;-#,##0.00">
 				<reportElement x="498" y="0" width="54" height="18"/>

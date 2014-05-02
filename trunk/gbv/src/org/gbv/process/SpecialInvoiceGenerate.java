@@ -108,8 +108,11 @@ public class SpecialInvoiceGenerate extends SvrProcess {
 			throw new AdempiereException(ERR_NO_INVOICE_WAS_GENERATED);
 			//return ERR_NO_INVOICE_WAS_GENERATED;
 		
-		if("CO".equals(p_DocStatus))
-			invoice.completeIt();
+		
+		
+		if("CO".equals(p_DocStatus)){
+			invoice.processIt(p_DocStatus);
+		}
 		
 		if(!invoice.save(get_TrxName()))
 			throw new AdempiereException(ERR_CANNOT_SAVE_INVOICE);
@@ -137,6 +140,7 @@ public class SpecialInvoiceGenerate extends SvrProcess {
 		
 		invoice.setDateInvoiced(period.getEndDate());
 		invoice.setDateAcct(period.getEndDate());
+		invoice.setUser1_ID(0);
 		
 		invoice.save(get_TrxName());
 		return invoice;
