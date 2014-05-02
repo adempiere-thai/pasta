@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fontFamilies>
+
+	<fontFamily name="Microsoft Sans Serif">
+		<normal>micross/MICROSS.TTF</normal>
+		<pdfEncoding>Identity-H</pdfEncoding>
+		<pdfEmbedded>true</pdfEmbedded>
+		<exportFonts>
+			<export key="net.sf.jasperreports.html">Microsoft Sans Serif</export>
+			<export key="net.sf.jasperreports.xhtml">Microsoft Sans Serif</export>
+		</exportFonts>
+	</fontFamily>	
+
+</fontFamilies>
