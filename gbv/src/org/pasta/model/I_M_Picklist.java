@@ -94,19 +94,6 @@ public interface I_M_Picklist
 	  */
 	public int getCreatedBy();
 
-    /** Column name DateDoc */
-    public static final String COLUMNNAME_DateDoc = "DateDoc";
-
-	/** Set Document Date.
-	  * Date of the Document
-	  */
-	public void setDateDoc (Timestamp DateDoc);
-
-	/** Get Document Date.
-	  * Date of the Document
-	  */
-	public Timestamp getDateDoc();
-
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
 
@@ -154,6 +141,30 @@ public interface I_M_Picklist
 
 	/** Get Picklist	  */
 	public int getM_Picklist_ID();
+
+    /** Column name PickBy */
+    public static final String COLUMNNAME_PickBy = "PickBy";
+
+	/** Set PickBy	  */
+	public void setPickBy (int PickBy);
+
+	/** Get PickBy	  */
+	public int getPickBy();
+
+	public org.compiere.model.I_AD_User getPic() throws RuntimeException;
+
+    /** Column name PickDate */
+    public static final String COLUMNNAME_PickDate = "PickDate";
+
+	/** Set Pick Date.
+	  * Date/Time when picked for Shipment
+	  */
+	public void setPickDate (Timestamp PickDate);
+
+	/** Get Pick Date.
+	  * Date/Time when picked for Shipment
+	  */
+	public Timestamp getPickDate();
 
     /** Column name PrintBarcode */
     public static final String COLUMNNAME_PrintBarcode = "PrintBarcode";

@@ -200,15 +200,6 @@ public interface I_M_PicklistLine
 
 	public org.compiere.model.I_M_Warehouse getM_Warehouse() throws RuntimeException;
 
-    /** Column name PackingNo */
-    public static final String COLUMNNAME_PackingNo = "PackingNo";
-
-	/** Set Packing No	  */
-	public void setPackingNo (String PackingNo);
-
-	/** Get Packing No	  */
-	public String getPackingNo();
-
     /** Column name Qty */
     public static final String COLUMNNAME_Qty = "Qty";
 

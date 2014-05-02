@@ -32,7 +32,7 @@ public class X_M_PicklistLine extends PO implements I_M_PicklistLine, I_Persiste
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20140120L;
+	private static final long serialVersionUID = 20140123L;
 
     /** Standard Constructor */
     public X_M_PicklistLine (Properties ctx, int M_PicklistLine_ID, String trxName)
@@ -280,20 +280,6 @@ public class X_M_PicklistLine extends PO implements I_M_PicklistLine, I_Persiste
 		if (ii == null)
 			 return 0;
 		return ii.intValue();
-	}
-
-	/** Set Packing No.
-		@param PackingNo Packing No	  */
-	public void setPackingNo (String PackingNo)
-	{
-		set_Value (COLUMNNAME_PackingNo, PackingNo);
-	}
-
-	/** Get Packing No.
-		@return Packing No	  */
-	public String getPackingNo () 
-	{
-		return (String)get_Value(COLUMNNAME_PackingNo);
 	}
 
 	/** Set Quantity.

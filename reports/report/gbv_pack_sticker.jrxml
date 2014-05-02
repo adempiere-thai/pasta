@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="gbv_pack_sticker" language="groovy" pageWidth="595" pageHeight="842" columnWidth="525" leftMargin="35" rightMargin="35" topMargin="4" bottomMargin="3">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="DocumentNo" class="java.lang.String"/>
+	<parameter name="OrderNo1" class="java.lang.String"/>
+	<parameter name="OrderNo2" class="java.lang.String"/>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal"/>
+	<queryString>
+		<![CDATA[SELECT pk.documentno as package_no ,od.documentno as sales_order_no ,b.name as customer_name
+      ,l.address1 ,l.address2 ,l.address3 ,l.address4 ,l.city ,l.postal
+FROM MM_Package pk
+INNER JOIN C_Order od ON od.C_Order_ID = pk.C_Order_ID
+INNER JOIN C_BPartner b ON b.C_BPartner_ID = od.C_BPartner_ID
+INNER JOIN C_BPartner_Location bl ON bl.C_BPartner_Location_ID = od.C_BPartner_Location_ID
+INNER JOIN C_Location l ON l.C_Location_Id = bl.C_Location_ID
+WHERE od.AD_Org_ID = $P{AD_Org_ID}
+AND ( pk.documentno = $P{DocumentNo}
+OR( od.documentno >= $P{OrderNo1} and od.documentno <= $P{OrderNo2})
+)
+ORDER BY pk.documentno]]>
+	</queryString>
+	<field name="package_no" class="java.lang.String"/>
+	<field name="sales_order_no" class="java.lang.String"/>
+	<field name="customer_name" class="java.lang.String"/>
+	<field name="address1" class="java.lang.String"/>
+	<field name="address2" class="java.lang.String"/>
+	<field name="address3" class="java.lang.String"/>
+	<field name="address4" class="java.lang.String"/>
+	<field name="city" class="java.lang.String"/>
+	<field name="postal" class="java.lang.String"/>
+	<group name="package_no_grp">
+		<groupExpression><![CDATA[$F{package_no}]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="106" splitType="Stretch">
+			<textField>
+				<reportElement x="35" y="0" width="202" height="20"/>
+				<box topPadding="5" leftPadding="10" rightPadding="10"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["TO : "+$F{customer_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="35" y="19" width="202" height="25"/>
+				<box topPadding="3" leftPadding="15" rightPadding="15"/>
+				<textElement>
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getAddress($F{address1},$F{address2},$F{address3},$F{address4},$F{city},$F{postal})]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="35" y="58" width="202" height="48"/>
+				<jr:Code128 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" moduleWidth="2.0" textPosition="bottom">
+					<jr:codeExpression><![CDATA[$F{package_no}]]></jr:codeExpression>
+				</jr:Code128>
+			</componentElement>
+			<textField>
+				<reportElement x="35" y="43" width="202" height="15"/>
+				<box leftPadding="15" rightPadding="15"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Sales Order No. :"+$F{sales_order_no}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="201" y="44" width="36" height="14"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[ ($P{AD_Org_ID}.intValueExact()==1000006?"(MNP)":"(GBV)")]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

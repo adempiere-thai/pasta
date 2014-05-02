@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/css" href="adempiereDocument.css"?>
+
+<adempiereDocument>
+    <header>DeliveryForm Package Description</header>
+    <H1>Package Name:</H1>
+    <packagename>DeliveryForm</packagename>
+    <H1>Creator:</H1>
+    <creator>pasuwatw@gmail.com</creator>
+    <H1>Email Address:</H1>
+    <creatorcontact>pasuwatw@gmail.com</creatorcontact>
+    <H1>Created:</H1>
+    <createddate>2014-04-22 00:17:07</createddate>
+    <H1>Updated:</H1>
+    <updateddate>2014-04-22 00:17:07</updateddate>
+    <H1>Description:</H1>
+    <description>DeliveryForm</description>
+    <H1>Instructions:</H1>
+    <instructions>DeliveryForm</instructions>
+    <H1>Files in Package:</H1>
+    <file>File: PackOut.xml</file>
+    <filedirectory>Directory: \dict\</filedirectory>
+    <filenotes>Notes: Contains all application/object settings for package</filenotes>
+</adempiereDocument>
