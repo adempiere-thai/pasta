@@ -31,7 +31,7 @@ public class X_SD_Delivery extends PO implements I_SD_Delivery, I_Persistent
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = 20140501L;
+	private static final long serialVersionUID = 20140504L;
 
     /** Standard Constructor */
     public X_SD_Delivery (Properties ctx, int SD_Delivery_ID, String trxName)
