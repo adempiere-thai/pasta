@@ -63,6 +63,51 @@ public interface I_SD_DeliveryLine
 	  */
 	public int getAD_Org_ID();
 
+    /** Column name C_BPartner_ID */
+    public static final String COLUMNNAME_C_BPartner_ID = "C_BPartner_ID";
+
+	/** Set Business Partner .
+	  * Identifies a Business Partner
+	  */
+	public void setC_BPartner_ID (int C_BPartner_ID);
+
+	/** Get Business Partner .
+	  * Identifies a Business Partner
+	  */
+	public int getC_BPartner_ID();
+
+	public org.compiere.model.I_C_BPartner getC_BPartner() throws RuntimeException;
+
+    /** Column name C_Order_ID */
+    public static final String COLUMNNAME_C_Order_ID = "C_Order_ID";
+
+	/** Set Order.
+	  * Order
+	  */
+	public void setC_Order_ID (int C_Order_ID);
+
+	/** Get Order.
+	  * Order
+	  */
+	public int getC_Order_ID();
+
+	public org.compiere.model.I_C_Order getC_Order() throws RuntimeException;
+
+    /** Column name C_PaymentTerm_ID */
+    public static final String COLUMNNAME_C_PaymentTerm_ID = "C_PaymentTerm_ID";
+
+	/** Set Payment Term.
+	  * The terms of Payment (timing, discount)
+	  */
+	public void setC_PaymentTerm_ID (int C_PaymentTerm_ID);
+
+	/** Get Payment Term.
+	  * The terms of Payment (timing, discount)
+	  */
+	public int getC_PaymentTerm_ID();
+
+	public org.compiere.model.I_C_PaymentTerm getC_PaymentTerm() throws RuntimeException;
+
     /** Column name Created */
     public static final String COLUMNNAME_Created = "Created";
 
@@ -79,6 +124,19 @@ public interface I_SD_DeliveryLine
 	  */
 	public int getCreatedBy();
 
+    /** Column name DateDelivered */
+    public static final String COLUMNNAME_DateDelivered = "DateDelivered";
+
+	/** Set Date Delivered.
+	  * Date when the product was delivered
+	  */
+	public void setDateDelivered (Timestamp DateDelivered);
+
+	/** Get Date Delivered.
+	  * Date when the product was delivered
+	  */
+	public Timestamp getDateDelivered();
+
     /** Column name Description */
     public static final String COLUMNNAME_Description = "Description";
 
@@ -91,6 +149,32 @@ public interface I_SD_DeliveryLine
 	  * Optional short description of the record
 	  */
 	public String getDescription();
+
+    /** Column name DocumentNo */
+    public static final String COLUMNNAME_DocumentNo = "DocumentNo";
+
+	/** Set Document No.
+	  * Document sequence number of the document
+	  */
+	public void setDocumentNo (String DocumentNo);
+
+	/** Get Document No.
+	  * Document sequence number of the document
+	  */
+	public String getDocumentNo();
+
+    /** Column name DueDate */
+    public static final String COLUMNNAME_DueDate = "DueDate";
+
+	/** Set Due Date.
+	  * Date when the payment is due
+	  */
+	public void setDueDate (Timestamp DueDate);
+
+	/** Get Due Date.
+	  * Date when the payment is due
+	  */
+	public Timestamp getDueDate();
 
     /** Column name IsActive */
     public static final String COLUMNNAME_IsActive = "IsActive";
@@ -105,6 +189,21 @@ public interface I_SD_DeliveryLine
 	  */
 	public boolean isActive();
 
+    /** Column name M_Shipper_ID */
+    public static final String COLUMNNAME_M_Shipper_ID = "M_Shipper_ID";
+
+	/** Set Shipper.
+	  * Method or manner of product delivery
+	  */
+	public void setM_Shipper_ID (int M_Shipper_ID);
+
+	/** Get Shipper.
+	  * Method or manner of product delivery
+	  */
+	public int getM_Shipper_ID();
+
+	public org.compiere.model.I_M_Shipper getM_Shipper() throws RuntimeException;
+
     /** Column name MM_Package_ID */
     public static final String COLUMNNAME_MM_Package_ID = "MM_Package_ID";
 
@@ -115,6 +214,19 @@ public interface I_SD_DeliveryLine
 	public int getMM_Package_ID();
 
 	public org.pasta.model.I_MM_Package getMM_Package() throws RuntimeException;
+
+    /** Column name Processed */
+    public static final String COLUMNNAME_Processed = "Processed";
+
+	/** Set Processed.
+	  * The document has been processed
+	  */
+	public void setProcessed (boolean Processed);
+
+	/** Get Processed.
+	  * The document has been processed
+	  */
+	public boolean isProcessed();
 
     /** Column name SD_Delivery_ID */
     public static final String COLUMNNAME_SD_Delivery_ID = "SD_Delivery_ID";
