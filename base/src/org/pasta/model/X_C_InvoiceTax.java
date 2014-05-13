@@ -21,7 +21,9 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.Properties;
-import org.compiere.model.*;
+import org.compiere.model.I_C_Invoice;
+import org.compiere.model.MTable;
+import org.compiere.model.POInfo;
 import org.compiere.util.Env;
 
 /** Generated Model for C_InvoiceTax
@@ -150,9 +152,9 @@ public class X_C_InvoiceTax extends org.compiere.model.X_C_InvoiceTax implements
 		return bd;
 	}
 
-	public I_C_Invoice getC_Invoice() throws RuntimeException
+	public org.compiere.model.I_C_Invoice getC_Invoice() throws RuntimeException
     {
-		return (I_C_Invoice)MTable.get(getCtx(), I_C_Invoice.Table_Name)
+		return (org.compiere.model.I_C_Invoice)MTable.get(getCtx(), org.compiere.model.I_C_Invoice.Table_Name)
 			.getPO(getC_Invoice_ID(), get_TrxName());	}
 
 	/** Set Tax Invoice No..
