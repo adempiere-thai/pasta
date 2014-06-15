@@ -25,10 +25,7 @@ import java.util.logging.Level;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.compiere.minigrid.IMiniTable;
-import org.compiere.model.MAccount;
 import org.compiere.model.MAcctSchema;
-import org.compiere.model.MCharge;
-import org.compiere.model.MElementValue;
 import org.compiere.model.MShipper;
 import org.compiere.model.Query;
 import org.compiere.util.CLogger;

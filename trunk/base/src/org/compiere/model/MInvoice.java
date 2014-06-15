@@ -56,7 +56,7 @@ import org.eevolution.model.MPPProductBOMLine;
  *			@see http://sourceforge.net/tracker2/?func=detail&atid=879335&aid=2520591&group_id=176962
  *  Modifications: Added RMA functionality (Ashley Ramdass)
  */
-public class MInvoice extends X_C_Invoice implements DocAction
+public class MInvoice extends org.pasta.model.X_C_Invoice implements DocAction
 {
 	/**
 	 * 
@@ -2343,6 +2343,13 @@ public class MInvoice extends X_C_Invoice implements DocAction
         setC_Campaign_ID(originalInvoice.getC_Campaign_ID());
         setUser1_ID(originalInvoice.getUser1_ID());
         setUser2_ID(originalInvoice.getUser2_ID());
+        
+        // Set Reference Invoice Information
+        setIsCreditDebit(true);
+        setRef_Invoice_ID(originalInvoice.getC_Invoice_ID());
+        setRefTaxInvoiceDate(originalInvoice.getDateInvoiced());
+        setRefTaxInvoiceNo(originalInvoice.getDocumentNo());
+        setRefTaxInvoiceAmt(originalInvoice.getTotalLines());
 	}
 
 	/**
