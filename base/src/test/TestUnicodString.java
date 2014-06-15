@@ -28,7 +28,7 @@ public class TestUnicodString {
 	}
 
 	public static void main(String args[]){
-		System.out.println(new TestUnicodString().convert("ใบสั่งซื้อเลขที่/ Purchase order no:"));
+		System.out.println(new TestUnicodString().convert("ราคาสินค้าผิด"));
 //		System.out.println("\u0e44\u0e17\u0e22\u0e21\u0e32\u0e23\u0e4c\u0e17\u0e2a\u0e42\u0e15\u0e23\u0e4c");
 	}
 

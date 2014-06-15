@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.adempiere.exceptions.AdempiereException;
+import org.apache.commons.lang.StringUtils;
 import org.compiere.acct.Doc;
 import org.compiere.acct.DocLine;
 import org.compiere.acct.Fact;
@@ -15,6 +16,7 @@ import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAllocationHdr;
 import org.compiere.model.MAllocationLine;
 import org.compiere.model.MClient;
+import org.compiere.model.MInvoice;
 import org.compiere.model.MPayment;
 import org.compiere.model.MPaymentAllocate;
 import org.compiere.model.MSysConfig;
@@ -27,6 +29,7 @@ import org.compiere.model.X_C_BP_Withholding;
 import org.compiere.model.X_C_Withholding_Acct;
 import org.compiere.util.CLogger;
 import org.compiere.util.Env;
+import org.compiere.util.Msg;
 
 public class THLocalizeModelValidator implements ModelValidator, FactsValidator {
 	/** Logger */
@@ -63,9 +66,13 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 		engine.addDocValidate(MPayment.Table_Name, this);
 		engine.addDocValidate(MAllocationHdr.Table_Name, this);
 		
+		/// Add Validation for Credit Memo
+		engine.addDocValidate(MInvoice.Table_Name, this);
+		
 		// Add Fact Validator
 		engine.addFactsValidate(MPayment.Table_Name, this);
 		engine.addFactsValidate(MAllocationHdr.Table_Name, this);
+		
 	}
 
 	public String login(int AD_Org_ID, int AD_Role_ID, int AD_User_ID) {
@@ -75,15 +82,11 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 		
 		return null;
 	}
-
-	public String modelChange(PO po, int type) throws Exception {
-		
-		return null;
-	}
 	
 	public String docValidate(PO po, int timing) {
 		m_ctx = po.getCtx();
 		trxName = po.get_TrxName();
+		String msg ="";
 		
 		if(MPayment.Table_Name.equals(po.get_TableName())){
 			MPayment payment = (MPayment)po;
@@ -96,7 +99,7 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 					
 					x_allocate.setWithholdingAmt(x_payment.getWithholdingAmt());
 					if(!x_allocate.save(trxName))
-						new AdempiereException("CANNOT_SAVE_WITHHOLDING_AMT_ALLOCATE");
+						msg = "CANNOT_SAVE_WITHHOLDING_AMT_ALLOCATE" ;
 				}
 			}else if(TIMING_AFTER_REVERSECORRECT == timing){
 				setWithholdingStatus(X_C_WHTaxTrans.WHTCERTIFIEDSTATUS_Prepared,payment);
@@ -106,19 +109,47 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 				reverse.setWithholdingAmt(reverse.getWithholdingAmt().negate());
 				
 				if(!reverse.save(trxName))
-					new AdempiereException("CANNOT_REVERSE_WITHHOLDING_TAX_AMT");
+					msg = "CANNOT_REVERSE_WITHHOLDING_TAX_AMT";
 			}
 		}
-		/*else if(MAllocationHdr.Table_Name.equals(po.get_TableName())){
-			MAllocationHdr alloHdr = (MAllocationHdr)po;
-			if(TIMING_AFTER_COMPLETE == timing){
-				
-			}else if(TIMING_AFTER_REVERSECORRECT == timing){
-				
+		if(MInvoice.Table_Name.equals(po.get_TableName())){
+			MInvoice invoice = (MInvoice)po;
+			if(invoice.isSOTrx() && invoice.isCreditMemo()){
+				if( TIMING_BEFORE_COMPLETE  == timing ){
+					String errMessage = validationCreditMemo(invoice);
+					if(!StringUtils.isEmpty(errMessage)){
+						msg = errMessage;
+					}
+				}
 			}
-		}*/
+		}
+		
+		if(!StringUtils.isEmpty(msg))
+			return Msg.getMsg(m_ctx, msg);
 		
 		return null;
+	}
+
+	private String validationCreditMemo(MInvoice creditNote) {
+		/** Validation Credit Memo
+		 *  1. Check Orgiginal Invoice Date Should Open Before Credit Note Invoice Date
+		 *  2. Check Client,Organization,BusinessPartner,Price list and Currency should match with original Invoice 
+		 **/
+		String errMsg = "";
+		MInvoice invoice = MInvoice.get(creditNote.getCtx(), creditNote.getRef_Invoice_ID());
+		
+		if(invoice.getAD_Org_ID() != creditNote.getAD_Org_ID() ||
+			invoice.getC_BPartner_ID() != creditNote.getC_BPartner_ID() ||
+				invoice.getM_PriceList_ID() != creditNote.getM_PriceList_ID() ||
+					invoice.getC_Currency_ID() != creditNote.getC_Currency_ID())
+		{
+			errMsg = "CREDIT_NOTE_INFO_NOT_MATCH_INVOICE";
+		}
+		else if(!creditNote.getDateInvoiced().after(invoice.getDateInvoiced())){
+			errMsg = "CREDIT_NOTE_DATE_BEFORE_INVOICE_DATE";
+		}
+		
+		return errMsg;
 	}
 
 	public String factsValidate(MAcctSchema as, List<Fact> facts, PO po) {
@@ -301,5 +332,11 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 		
 		MWithholding withholding = (MWithholding)bpWH.getC_Withholding();
 		return withholding;
+	}
+
+	@Override
+	public String modelChange(PO po, int type) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
