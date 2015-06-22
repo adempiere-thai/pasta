@@ -8,10 +8,12 @@ import java.math.BigDecimal;
 
 import org.adempiere.exceptions.AdempiereException;
 import org.apache.commons.lang.StringUtils;
+import org.compiere.model.MDocType;
 import org.compiere.model.MInOut;
 import org.compiere.model.MInOutLine;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MInvoiceLine;
+import org.compiere.model.MInvoiceTax;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MSysConfig;
@@ -123,7 +125,7 @@ public class ShipmentInvoiceGenerate extends SvrProcess {
 		
 		MInOut[] inouts = order.getShipments();
 		for(MInOut inout : inouts){
-			if(inout.isComplete() || MInOut.DOCSTATUS_Drafted.equals(inout.getDocStatus())){
+			if(MInOut.DOCSTATUS_Completed.equals(inout.getDocStatus())){
 				throw new AdempiereException(ERR_SO_WAS_GENERATED);
 			}
 		}
@@ -132,6 +134,20 @@ public class ShipmentInvoiceGenerate extends SvrProcess {
 	// SYSTEM CONFIG DOCUMENT TYPE ID OF AR INVOICE FOR GBV AND MNP
 	private static final String SYSTEM_CONFIG_GBV_AR_INVOICE_ID = "GBV_AR_INVOICE_ID";
 	private static final String SYSTEM_CONFIG_MNP_AR_INVOICE_ID = "MNP_AR_INVOICE_ID";
+	
+	private int getARInvoiceDocType(){
+		int ret = 0;
+		MDocType[] docTypes = MDocType.getOfDocBaseType(this.getCtx(),MDocType.DOCBASETYPE_ARInvoice);
+		
+		for(MDocType docType : docTypes){
+			if(p_AD_Org_ID == docType.getAD_Org_ID() && !docType.isTaxInvoice()){
+				return docType.getC_DocType_ID();
+			}
+		}
+		
+		
+		return ret;
+	}
 
 	private String generateInvoice(MOrder order, MInOut shipment) throws Exception {
 		// TODO Auto-generated method stub
@@ -139,10 +155,13 @@ public class ShipmentInvoiceGenerate extends SvrProcess {
 		
 		// Set Invoice Document Type To AR Invoice
 		int C_DocType_ID = invoice.getC_DocTypeTarget_ID();
+		/*
 		if(p_AD_Org_ID == 1000005)
 			C_DocType_ID = MSysConfig.getIntValue(SYSTEM_CONFIG_GBV_AR_INVOICE_ID, C_DocType_ID);
 		else if(p_AD_Org_ID == 1000006)
 			C_DocType_ID = MSysConfig.getIntValue(SYSTEM_CONFIG_MNP_AR_INVOICE_ID, C_DocType_ID);
+		*/
+		C_DocType_ID = getARInvoiceDocType();
 		
 		invoice.setC_DocTypeTarget_ID(C_DocType_ID);
 		if(!invoice.save(get_TrxName()))
@@ -153,6 +172,10 @@ public class ShipmentInvoiceGenerate extends SvrProcess {
 			MInvoiceLine iline = new MInvoiceLine(invoice);
 			iline.setShipLine(ioLine);
 			iline.setQty(ioLine.getQtyEntered());
+			iline.setPriceEntered(ioLine.getC_OrderLine().getPriceEntered());
+			iline.setC_Tax_ID(ioLine.getC_OrderLine().getC_Tax_ID());
+			
+			
 			if(!iline.save(get_TrxName()))
 				throw new AdempiereException(ERR_CANNOT_SAVE_INVOICE_LINE);
 		}
@@ -160,6 +183,11 @@ public class ShipmentInvoiceGenerate extends SvrProcess {
 		
 		if (invoice != null)
 		{
+			MInvoiceTax[] taxes =  invoice.getTaxes(true);
+			
+			if(taxes.length > 0)
+				taxes[0].setAD_TaxOrg_ID(taxes[0].getAD_Org_ID());
+			
 			if (!invoice.processIt(DocAction.ACTION_Complete))
 			{
 				log.warning("completeInvoice - failed: " + invoice);
