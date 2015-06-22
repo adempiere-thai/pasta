@@ -17,7 +17,7 @@ LEFT JOIN M_Warehouse wh ON wh.M_Warehouse_Id = pl.M_Warehouse_Id
 LEFT JOIN M_Locator lt ON lt.M_Locator_ID = pl.M_Locator_Id
 LEFT JOIN MM_PackageLine pkl ON pkl.M_PickListLine_ID = pl.M_PickListLine_Id
 LEFT JOIN MM_Package pck ON pck.MM_Package_ID = pkl.MM_Package_ID
-WHERE p.C_Order_ID = $P{C_Order_ID}
+WHERE p.C_Order_ID = COALESCE($P{C_Order_ID},p.C_Order_ID)
 ORDER BY pl.line , pck.documentno]]>
 	</queryString>
 	<field name="sales_order_no" class="java.lang.String"/>

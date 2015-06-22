@@ -16,7 +16,7 @@ INNER JOIN C_BPartner b ON b.C_BPartner_ID = od.C_BPartner_ID
 INNER JOIN C_BPartner_Location bl ON bl.C_BPartner_Location_ID = od.C_BPartner_Location_ID
 INNER JOIN C_Location l ON l.C_Location_Id = bl.C_Location_ID
 WHERE od.AD_Org_ID = $P{AD_Org_ID}
-AND ( pk.documentno = $P{DocumentNo}
+AND ( pk.documentno = COALESCE($P{DocumentNo},pk.documentno)
 OR( od.documentno >= $P{OrderNo1} and od.documentno <= $P{OrderNo2})
 )
 ORDER BY pk.documentno]]>
@@ -73,7 +73,7 @@ ORDER BY pk.documentno]]>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Tahoma" size="9" isBold="true"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[ ($P{AD_Org_ID}.intValueExact()==1000006?"(MNP)":"(GBV)")]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[($P{AD_Org_ID}.intValueExact()==1000006?"(MNP)":"(GBV)")]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
