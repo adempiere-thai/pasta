@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="receipt" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="96"/>
+	<property name="ireport.y" value="1226"/>
 	<parameter name="AD_Client_ID" class="java.math.BigDecimal"/>
 	<parameter name="AD_Org_ID" class="java.math.BigDecimal"/>
 	<parameter name="p_DocumentNo1" class="java.lang.String"/>
@@ -104,7 +104,7 @@ ORDER BY rpt.documentno , iv.dateinvoiced]]>
 				<reportElement x="0" y="570" width="555" height="1"/>
 			</line>
 			<line>
-				<reportElement x="1" y="466" width="555" height="1"/>
+				<reportElement x="1" y="466" width="475" height="1"/>
 			</line>
 			<line>
 				<reportElement x="48" y="155" width="1" height="311"/>
