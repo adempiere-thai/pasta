@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PO Summary" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Error">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal"/>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal"/>
+	<parameter name="DateOrdered1" class="java.sql.Timestamp"/>
+	<parameter name="DateOrdered2" class="java.sql.Timestamp"/>
+	<queryString>
+		<![CDATA[SELECT sup.Value as SupplierCode , sup.Name as SupplierName ,po.DocumentNo , po.DateOrdered  , po.Description
+      ,pot.taxbaseamt as totallines , pot.TaxAmt, po.grandtotal ,t.rate as TaxRate , pol.Line
+      ,pd.value as ProductCode , pd.Name as ProductName , pol.Description as line_description , uom.Name as UOM
+      ,pol.qtyordered , pol.qtydelivered , pol.qtyinvoiced , pol.PriceEntered , pol.LineNetAmt
+      , iv.DocumentNo as InvoiceNo , o.name as OrgName
+FROM C_Order po
+INNER JOIN C_OrderLine pol ON po.C_Order_Id = pol.C_Order_Id
+INNER JOIN M_Product pd ON pol.M_Product_Id = pd.M_Product_Id
+LEFT JOIN M_MatchPO mpo ON mpo.C_OrderLine_Id = pol.C_OrderLine_Id
+LEFT JOIN M_InOutLine iol ON iol.M_InOutLine_Id = mpo.M_InOutLine_Id
+LEFT JOIN M_InOut io ON io.M_InOut_Id = iol.M_InOut_Id
+LEFT JOIN C_InvoiceLine ivl ON ivl.C_InvoiceLine_id = mpo.C_InvoiceLine_Id
+LEFT JOIN C_Invoice iv ON iv.C_Invoice_Id = ivl.C_Invoice_Id
+INNER JOIN C_BPartner sup ON sup.C_BPartner_Id = po.C_BPartner_Id
+INNER JOIN C_OrderTax pot ON po.C_Order_Id = pot.C_Order_Id
+INNER JOIN C_Tax t ON pot.C_Tax_Id = t.C_Tax_Id
+INNER JOIN C_UOM uom ON pol.C_UOM_Id = uom.C_UOM_Id
+INNER JOIN AD_Org o ON o.AD_Org_Id = po.AD_Org_Id
+WHERE po.IsSOTrx = 'N'
+AND po.DocStatus = 'CO'
+AND po.AD_Client_Id = $P{AD_Client_ID}
+AND po.AD_Org_Id = $P{AD_Org_ID}
+AND po.DateOrdered >= $P{DateOrdered1}
+AND po.DateOrdered <= $P{DateOrdered2}
+ORDER BY po.DateOrdered ,po.DocumentNo , pol.Line]]>
+	</queryString>
+	<field name="suppliercode" class="java.lang.String"/>
+	<field name="suppliername" class="java.lang.String"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="dateordered" class="java.sql.Timestamp"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="totallines" class="java.math.BigDecimal"/>
+	<field name="taxamt" class="java.math.BigDecimal"/>
+	<field name="grandtotal" class="java.math.BigDecimal"/>
+	<field name="taxrate" class="java.math.BigDecimal"/>
+	<field name="line" class="java.math.BigDecimal"/>
+	<field name="productcode" class="java.lang.String"/>
+	<field name="productname" class="java.lang.String"/>
+	<field name="line_description" class="java.lang.String"/>
+	<field name="uom" class="java.lang.String"/>
+	<field name="qtyordered" class="java.math.BigDecimal"/>
+	<field name="qtydelivered" class="java.math.BigDecimal"/>
+	<field name="qtyinvoiced" class="java.math.BigDecimal"/>
+	<field name="priceentered" class="java.math.BigDecimal"/>
+	<field name="linenetamt" class="java.math.BigDecimal"/>
+	<field name="invoiceno" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<variable name="V_NO_OF_PO" class="java.math.BigDecimal" incrementType="Group" incrementGroup="Order_Grp" calculation="Sum">
+		<variableExpression><![CDATA[java.math.BigDecimal.ONE]]></variableExpression>
+	</variable>
+	<group name="Order_Grp" isReprintHeaderOnEachPage="true" keepTogether="true">
+		<groupExpression><![CDATA[$F{documentno}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<textField pattern="dd/MM/yyyy">
+					<reportElement x="0" y="0" width="57" height="20"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{dateordered}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="56" y="0" width="100" height="20"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{documentno}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="155" y="0" width="239" height="20"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{suppliercode}+" "+$F{suppliername}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="445" y="0" width="70" height="20"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{totallines}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="514" y="0" width="70" height="20"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxamt}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="583" y="0" width="70" height="20"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{grandtotal}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="652" y="0" width="150" height="20"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{invoiceno}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="394" y="0" width="33" height="20"/>
+					<box leftPadding="4" rightPadding="4"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{taxrate}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="427" y="0" width="15" height="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[%]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<staticText>
+					<reportElement x="0" y="0" width="155" height="20"/>
+					<box rightPadding="4"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<text><![CDATA[รวม]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="198" y="0" width="57" height="20"/>
+					<box leftPadding="4"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<text><![CDATA[รายการ]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+					<reportElement x="156" y="0" width="42" height="20"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$V{Order_Grp_COUNT}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="1" y="0" width="802" height="20"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+					</box>
+					<textElement>
+						<font fontName="Cordia New" size="12"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="75" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="55" width="85" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ใบสั่งซื้อ จากวันที่]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="122" y="55" width="23" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ถึง]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="682" y="55" width="80" height="20"/>
+				<textElement textAlignment="Right">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="762" y="55" width="40" height="20"/>
+				<textElement>
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="85" y="55" width="37" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$P{DateOrdered1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="145" y="55" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$P{DateOrdered2}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="802" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{orgname}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="20" width="802" height="25"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รายงานสรุปใบสั่งซื้อ]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="40" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="57" height="20"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[วันที่สั่งซื้อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="56" y="0" width="99" height="20"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[เลขที่ใบสั่งซื้อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="155" y="0" width="239" height="20"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อผู้ขาย]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="394" y="0" width="51" height="20"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[อัตราภาษี]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="445" y="0" width="70" height="20"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[เงินก่อนภาษี]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="513" y="0" width="70" height="20"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ภาษี]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="582" y="0" width="70" height="20"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงิน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="653" y="0" width="150" height="20"/>
+				<box leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.0" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ใบแจ้งหนี้]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="31" y="20" width="25" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ลำดับที่]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="57" y="20" width="50" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[รหัสสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="107" y="20" width="287" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ชื่อสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="394" y="20" width="65" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[จำนวนที่สั่ง]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="459" y="20" width="65" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[จำนวนที่รับ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="524" y="20" width="65" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[จำนวนแจ้งหนี้]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="589" y="20" width="70" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[ราคาต่อหน่วย]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="659" y="20" width="70" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="false"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงิน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="802" height="40"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="107" y="0" width="287" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{productname}+( ($F{line_description} != null && $F{line_description}.length() > 0 ) ? "\n"+$F{line_description}:"")]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="31" y="0" width="25" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{line}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="394" y="0" width="65" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyordered}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="459" y="0" width="65" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtydelivered}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="524" y="0" width="65" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qtyinvoiced}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="589" y="0" width="70" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{priceentered}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="659" y="0" width="70" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{linenetamt}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="57" y="0" width="50" height="20"/>
+				<box leftPadding="4" rightPadding="4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{productcode}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="689" y="0" width="46" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[พิมพ์วันที่]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy h.mm a">
+				<reportElement x="735" y="0" width="67" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="0" width="802" height="20"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#CCCCCC"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="155" height="20"/>
+				<box rightPadding="4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<text><![CDATA[จำนวน ใบสั่งซื้อ รวม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="198" y="0" width="57" height="20"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<text><![CDATA[รายการ]]></text>
+			</staticText>
+			<textField evaluationTime="Group" evaluationGroup="Order_Grp" isBlankWhenNull="true">
+				<reportElement x="156" y="0" width="42" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{V_NO_OF_PO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>
