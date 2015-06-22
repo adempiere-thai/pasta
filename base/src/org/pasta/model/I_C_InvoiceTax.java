@@ -109,4 +109,17 @@ public interface I_C_InvoiceTax
 	  * C_Period_ID
 	  */
 	public int getC_Period_ID();
+	
+	/** Column name AD_TaxOrg_ID */
+    public static final String COLUMNNAME_AD_TaxOrg_ID = "AD_TaxOrg_ID";
+
+	/** Set Org Tax
+	  * AD_TaxOrg_ID
+	  */
+	public void setAD_TaxOrg_ID(int AD_TaxOrg_ID);
+
+	/** Get Org Tax
+	  * AD_TaxOrg_ID
+	  */
+	public int getAD_TaxOrg_ID();
 }

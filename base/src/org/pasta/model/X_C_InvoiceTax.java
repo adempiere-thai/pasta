@@ -190,4 +190,16 @@ public class X_C_InvoiceTax extends org.compiere.model.X_C_InvoiceTax implements
 	public void setC_Period_ID(int C_Period_ID) {
 		set_Value (COLUMNNAME_C_Period_ID, C_Period_ID);
 	}
+
+	@Override
+	public void setAD_TaxOrg_ID(int AD_TaxOrg_ID) {
+		// TODO Auto-generated method stub
+		set_Value (COLUMNNAME_AD_TaxOrg_ID, AD_TaxOrg_ID);
+	}
+
+	@Override
+	public int getAD_TaxOrg_ID() {
+		// TODO Auto-generated method stub
+		return (Integer)get_Value(COLUMNNAME_AD_TaxOrg_ID);
+	}
 }

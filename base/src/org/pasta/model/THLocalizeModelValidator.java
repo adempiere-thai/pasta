@@ -18,8 +18,6 @@ import org.compiere.model.MAllocationLine;
 import org.compiere.model.MClient;
 import org.compiere.model.MInvoice;
 import org.compiere.model.MPayment;
-import org.compiere.model.MPaymentAllocate;
-import org.compiere.model.MSysConfig;
 import org.compiere.model.MWithholding;
 import org.compiere.model.ModelValidationEngine;
 import org.compiere.model.ModelValidator;
@@ -129,6 +127,8 @@ public class THLocalizeModelValidator implements ModelValidator, FactsValidator 
 		
 		return null;
 	}
+
+	String message = "";
 
 	private String validationCreditMemo(MInvoice creditNote) {
 		/** Validation Credit Memo
