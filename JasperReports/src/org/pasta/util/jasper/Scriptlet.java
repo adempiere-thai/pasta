@@ -293,6 +293,19 @@ public class Scriptlet extends JRDefaultScriptlet {
 		return sdf.format(date);
 	}
 	
+	public static String getDateInFormat(java.sql.Timestamp time, String pattern,String localeStr){
+		if(time==null)
+			return "" ;
+		
+		java.util.Date date = new java.util.Date(time.getTime());
+		
+		String fmt = (pattern==null)?"dd/MMM/yy":pattern;//Default Pattern to dd/MMM/yy
+		SimpleDateFormat sdf = new SimpleDateFormat(fmt ,th_Locale);
+		if("EN".equals(localeStr))
+			sdf = new SimpleDateFormat(fmt ,en_Locale);
+		return sdf.format(date);
+	}
+	
 	public static String getNumberInFormat(Integer x, String pattern){
 		if(!(x > 0))
 			return "" ;
@@ -364,4 +377,5 @@ public class Scriptlet extends JRDefaultScriptlet {
 	}
 	
 	private static Locale th_Locale = new Locale("th","TH");
+	private static Locale en_Locale = new Locale("en","EN");
 }
