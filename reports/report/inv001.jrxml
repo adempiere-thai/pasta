@@ -2,12 +2,12 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="stockmovement" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="40" rightMargin="20" topMargin="20" bottomMargin="20">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="569"/>
 	<parameter name="AD_Client_ID" class="java.math.BigDecimal"/>
 	<parameter name="AD_Org_ID" class="java.math.BigDecimal"/>
 	<parameter name="M_Product_ID" class="java.math.BigDecimal"/>
 	<parameter name="M_Warehouse_ID" class="java.math.BigDecimal"/>
-	<parameter name="p_C_Period_ID" class="java.math.BigDecimal"/>
+	<parameter name="C_Period_ID" class="java.math.BigDecimal"/>
 	<queryString>
 		<![CDATA[SELECT distinct ts.ad_client_id
 	,ac.NAME as client_name
@@ -71,7 +71,7 @@ WHERE 1=1
   AND ts.ad_client_id = $P{AD_Client_ID}
   AND lt.ad_org_id = coalesce($P{AD_Org_ID},ts.ad_org_id)
   AND ts.m_product_id = coalesce($P{M_Product_ID},ts.m_product_id)
-  AND p.C_PERIOD_ID = coalesce($P{p_C_Period_ID},p.C_Period_ID)
+  AND p.C_PERIOD_ID = coalesce($P{C_Period_ID},p.C_Period_ID)
   AND lt.m_warehouse_id = coalesce($P{M_Warehouse_ID},lt.m_warehouse_id)
 ORDER BY ts.m_product_id ,ts.Movementdate]]>
 	</queryString>

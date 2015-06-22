@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Delivery Note/ Invoice" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
-	<property name="ireport.zoom" value="1.0"/>
-	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="226"/>
+	<property name="ireport.y" value="469"/>
 	<parameter name="AD_Client_ID" class="java.math.BigDecimal">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -17,7 +17,7 @@
       , b.name bankname , b.routingno      ,loc.address1 , loc.address2 , loc.address3 , loc.address4 ,loc.city , loc.postal
 ,loc.address1 s_address1, loc.address2 s_address2, loc.address3 s_address3, loc.address4 s_address4,loc.city s_city, loc.postal s_postal
       ,pd.name as product_name , cur.cursymbol , ivl.priceactual , ivl.qtyentered
-      , ivl.linenetamt , ivt.taxbaseamt , ivt.taxamt , ivh.grandtotal ,t.rate taxrate , cur.iso_code ,u.name as salesrep_name, ivh.packingno packing_no , pt.name as paymentterm , oi.taxid
+      , ivl.linenetamt , ivt.taxbaseamt , ivt.taxamt , ivh.grandtotal ,t.rate taxrate , cur.iso_code ,u.name as salesrep_name, ivh.packingno packing_no , pt.name as paymentterm , oi.taxid , dt.documentnote , blogo.binarydata as bank_logo
 from c_invoice ivh
 inner join c_invoiceline ivl on ivh.c_invoice_id = ivl.c_invoice_id
 inner join c_invoicetax ivt on ivh.c_invoice_id = ivt.c_invoice_id
@@ -35,6 +35,7 @@ inner join ad_orginfo oi on oi.ad_org_id = ivh.ad_org_id
 left join ad_user u on ivh.salesrep_id = u.ad_user_id
 left join c_bankaccount ba on ba.c_bankaccount_id = dt.c_bankaccount_id
 left join c_bank b on ba.c_bank_id = b.c_bank_id
+left join AD_IMAGE blogo on blogo.NAME = b.routingno
 left join c_paymentterm pt on pt.c_paymentterm_id = ivh.c_paymentterm_id
 where ivh.ad_client_id = $P{AD_Client_ID}
 and ivh.ad_org_id = $P{AD_Org_ID}
@@ -62,6 +63,12 @@ order by ivh.documentno , ivl.line asc]]>
 	<field name="address4" class="java.lang.String"/>
 	<field name="city" class="java.lang.String"/>
 	<field name="postal" class="java.lang.String"/>
+	<field name="s_address1" class="java.lang.String"/>
+	<field name="s_address2" class="java.lang.String"/>
+	<field name="s_address3" class="java.lang.String"/>
+	<field name="s_address4" class="java.lang.String"/>
+	<field name="s_city" class="java.lang.String"/>
+	<field name="s_postal" class="java.lang.String"/>
 	<field name="product_name" class="java.lang.String"/>
 	<field name="cursymbol" class="java.lang.String"/>
 	<field name="priceactual" class="java.math.BigDecimal"/>
@@ -76,12 +83,8 @@ order by ivh.documentno , ivl.line asc]]>
 	<field name="packing_no" class="java.lang.String"/>
 	<field name="paymentterm" class="java.lang.String"/>
 	<field name="taxid" class="java.lang.String"/>
-	<field name="s_address1" class="java.lang.String"/>
-	<field name="s_address2" class="java.lang.String"/>
-	<field name="s_address3" class="java.lang.String"/>
-	<field name="s_address4" class="java.lang.String"/>
-	<field name="s_city" class="java.lang.String"/>
-	<field name="s_postal" class="java.lang.String"/>
+	<field name="documentnote" class="java.lang.String"/>
+	<field name="bank_logo" class="java.awt.Image"/>
 	<variable name="V_SUM_QTY_PER_SO" class="java.math.BigDecimal" resetType="Group" resetGroup="documentno" calculation="Sum">
 		<variableExpression><![CDATA[$F{qtyentered}]]></variableExpression>
 	</variable>
@@ -193,13 +196,6 @@ order by ivh.documentno , ivl.line asc]]>
 					<font fontName="Tahoma" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[org.pasta.util.jasper.Scriptlet.getAddress($F{address1},$F{address2},$F{address3},$F{address4},$F{city},$F{postal})]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="281" y="56" width="273" height="20"/>
-				<textElement verticalAlignment="Middle">
-					<font fontName="Tahoma" size="10"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA["Acc no."+($F{accountno}!=null?$F{accountno}:"")+($F{routingno}!=null?$F{routingno}:"")+" "+($F{account_name}!=null?$F{account_name}:"")]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="1" y="57" width="260" height="20"/>
@@ -372,7 +368,7 @@ order by ivh.documentno , ivl.line asc]]>
 				</graphicElement>
 			</line>
 			<line>
-				<reportElement x="0" y="227" width="555" height="1"/>
+				<reportElement x="0" y="226" width="555" height="1"/>
 				<graphicElement>
 					<pen lineWidth="1.25" lineStyle="Solid"/>
 				</graphicElement>
@@ -420,13 +416,13 @@ order by ivh.documentno , ivl.line asc]]>
 				<text><![CDATA[Qty :]]></text>
 			</staticText>
 			<line>
-				<reportElement x="0" y="22" width="1" height="206"/>
+				<reportElement x="0" y="22" width="1" height="204"/>
 				<graphicElement>
 					<pen lineWidth="1.25" lineStyle="Solid"/>
 				</graphicElement>
 			</line>
 			<line>
-				<reportElement x="555" y="22" width="1" height="205"/>
+				<reportElement x="555" y="22" width="1" height="204"/>
 				<graphicElement>
 					<pen lineWidth="1.25" lineStyle="Solid"/>
 				</graphicElement>
@@ -567,7 +563,7 @@ order by ivh.documentno , ivl.line asc]]>
 				<textElement>
 					<font fontName="Tahoma" size="10" isBold="false"/>
 				</textElement>
-				<text><![CDATA[ผู้ส่งของ/ Name]]></text>
+				<text><![CDATA[ผู้รับของ/ Name]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="282" y="155" width="101" height="20"/>
@@ -695,19 +691,30 @@ order by ivh.documentno , ivl.line asc]]>
 				<text><![CDATA[PAYMENT SLIP by Email or MMS (Mobile)]]></text>
 			</staticText>
 			<textField isBlankWhenNull="true">
-				<reportElement x="0" y="185" width="556" height="20"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Tahoma" size="10" isBold="true"/>
+				<reportElement x="56" y="184" width="498" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA["Bank Name: "+($F{bankname}==null?"":$F{bankname})]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA["BANK NAME : "+($F{bankname}==null?"":$F{bankname})+" ACCOUNT NO. : "+($F{accountno}!=null?$F{accountno}:"")]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
-				<reportElement x="1" y="205" width="553" height="20"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Tahoma" size="10" isBold="true"/>
+				<reportElement x="56" y="205" width="498" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Tahoma" size="8" isBold="true"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA["Account Name: "+($F{account_name}!=null?$F{account_name}:"")+" "+($V{v_AccountTypeDescription}!=null?$V{v_AccountTypeDescription}:"")+" Account Number:"+($F{accountno}!=null?$F{accountno}:"")]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA["ACCOUNT NAME : "+($F{account_name}!=null?$F{account_name}:"")]]></textFieldExpression>
 			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="225" width="554" height="17"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Tahoma" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{documentnote}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame">
+				<reportElement x="4" y="184" width="40" height="40"/>
+				<imageExpression class="java.awt.Image"><![CDATA[$F{bank_logo}]]></imageExpression>
+			</image>
 		</band>
 	</pageFooter>
 </jasperReport>
