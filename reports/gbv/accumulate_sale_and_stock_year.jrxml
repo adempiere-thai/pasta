@@ -1,0 +1,1315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="accumulate_sale_and_stock_year" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="253"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal"/>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal"/>
+	<parameter name="M_Warehouse_ID" class="java.math.BigDecimal"/>
+	<parameter name="C_Year_ID_Info1" class="java.lang.String"/>
+	<parameter name="PO_PriceList_ID" class="java.math.BigDecimal"/>
+	<parameter name="SO_PriceList_ID" class="java.math.BigDecimal"/>
+	<queryString>
+		<![CDATA[SELECT m.* ,ppl.PO_PRICELIST_NAME ,wh.NAME as WAREHOUSE_NAME , currencyconvert(1, ppl.C_CURRENCY_ID , m.SO_CURRENCY_ID , current_date, 114, m.AD_CLIENT_ID, 0) as CONVERSION_RATE
+     , bomqtyavailable(m.M_PRODUCT_ID,$P{M_Warehouse_ID},null) as AVAILABLE_QTY , bomqtyonhand(m.M_PRODUCT_ID,$P{M_Warehouse_ID},null) as ONHAND_QTY
+FROM (
+SELECT to_char(inv.DateInvoiced,'MM')  as INVOICE_MONTH , pd.M_PRODUCT_ID , pd.VALUE as PRODUCT_CODE , inv.AD_CLIENT_ID , pc.NAME as PRODUCT_CATEGORY_NAME
+	, cl.NAME as CLIENT_NAME , o.NAME as ORG_NAME , sp.NAME as SO_PRICELIST_NAME
+	, pd.NAME as PRODUCT_NAME , sp.C_CURRENCY_ID SO_CURRENCY_ID ,ppp.PRICELIST as PURCHASED_PRICE , spp.PRICELIST AS SALES_PRICE ,t.rate , SUM( CASE WHEN ivl.m_rmaline_id > 0 THEN (-1*ivl.QTYINVOICED)
+			WHEN ivl.M_InOutLine_ID > 0 THEN ivl.QTYINVOICED
+            ELSE 0
+       END
+	)
+FROM C_INVOICE inv
+INNER JOIN C_INVOICELINE ivl ON inv.C_INVOICE_ID = ivl.C_INVOICE_ID
+INNER JOIN C_TAX t ON t.C_TAX_ID = ivl.C_TAX_ID
+INNER JOIN AD_CLIENT cl ON cl.AD_CLIENT_ID = inv.AD_CLIENT_ID
+INNER JOIN AD_ORG o ON o.AD_ORG_ID = inv.AD_ORG_ID
+LEFT JOIN M_PRODUCT pd ON ivl.M_PRODUCT_ID = pd.M_PRODUCT_ID
+LEFT JOIN M_PRODUCT_CATEGORY pc ON pc.M_PRODUCT_CATEGORY_ID = pd.M_PRODUCT_CATEGORY_ID
+LEFT JOIN M_PRODUCTPRICE spp ON spp.M_PRODUCT_ID = pd.M_PRODUCT_ID
+LEFT JOIN M_PRICELIST_VERSION spv ON spv.M_PRICELIST_VERSION_ID = spp.M_PRICELIST_VERSION_ID
+LEFT JOIN M_PRICELIST sp ON spv.M_PRICELIST_ID = sp.M_PRICELIST_ID
+LEFT JOIN (
+   SELECT pp.* , pl.C_CURRENCY_ID
+   FROM M_PRICELIST pl
+   INNER JOIN M_PRICELIST_VERSION plv ON plv.M_PRICELIST_ID = pl.M_PRICELIST_ID
+   INNER JOIN M_PRODUCTPRICE pp ON pp.M_PRICELIST_VERSION_ID = plv.M_PRICELIST_VERSION_ID
+   WHERE pl.M_PRICELIST_ID = $P{PO_PriceList_ID}
+   AND plv.IsActive = 'Y'
+) ppp ON ppp.M_PRODUCT_ID = pd.M_PRODUCT_ID
+WHERE to_char(inv.DateInvoiced,'YYYY') = $P{C_Year_ID_Info1}
+AND ivl.M_PRODUCT_ID > 0
+AND sp.M_PRICELIST_ID = $P{SO_PriceList_ID}
+AND inv.AD_CLIENT_ID = $P{AD_Client_ID}
+AND inv.AD_ORG_ID = $P{AD_Org_ID}
+AND spv.IsActive = 'Y'
+AND (ivl.M_InOutLine_ID > 0 or ivl.m_rmaline_id > 0)
+GROUP BY to_char(inv.DateInvoiced,'MM') , pd.M_PRODUCT_ID, pd.VALUE , inv.AD_CLIENT_ID , pc.NAME, cl.NAME , o.NAME , sp.NAME  , pd.NAME ,ppp.C_CURRENCY_ID , sp.C_CURRENCY_ID ,ppp.PRICELIST ,spp.PRICELIST , t.rate
+ORDER BY 2 , 1
+) m
+INNER JOIN (SELECT ppl.C_CURRENCY_ID , ppl.NAME as PO_PRICELIST_NAME FROM M_PRICELIST ppl WHERE ppl.M_PRICELIST_ID =  $P{PO_PriceList_ID}) ppl ON 1=1
+INNER JOIN (SELECT wh.NAME FROM M_WAREHOUSE wh WHERE wh.M_WAREHOUSE_ID = $P{M_Warehouse_ID} ) wh ON 1=1]]>
+	</queryString>
+	<field name="invoice_month" class="java.lang.String"/>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="product_code" class="java.lang.String"/>
+	<field name="ad_client_id" class="java.math.BigDecimal"/>
+	<field name="product_category_name" class="java.lang.String"/>
+	<field name="client_name" class="java.lang.String"/>
+	<field name="org_name" class="java.lang.String"/>
+	<field name="so_pricelist_name" class="java.lang.String"/>
+	<field name="product_name" class="java.lang.String"/>
+	<field name="so_currency_id" class="java.math.BigDecimal"/>
+	<field name="purchased_price" class="java.math.BigDecimal"/>
+	<field name="sales_price" class="java.math.BigDecimal"/>
+	<field name="rate" class="java.math.BigDecimal"/>
+	<field name="sum" class="java.math.BigDecimal"/>
+	<field name="po_pricelist_name" class="java.lang.String"/>
+	<field name="warehouse_name" class="java.lang.String"/>
+	<field name="conversion_rate" class="java.math.BigDecimal"/>
+	<field name="available_qty" class="java.math.BigDecimal"/>
+	<field name="onhand_qty" class="java.math.BigDecimal"/>
+	<variable name="v_qty_7_01" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "01".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_01" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "01".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_02" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "02".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_02" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "02".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_03" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "03".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_03" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "03".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_04" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "04".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_04" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "04".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_05" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "05".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_05" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "05".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_06" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "06".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_06" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "06".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_07" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "07".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_07" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "07".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_08" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "08".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_08" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "08".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_09" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "09".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_09" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "09".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_10" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "10".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_10" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "10".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_11" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "11".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_11" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "11".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_7_12" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 7 && "12".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_qty_0_12" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[($F{rate}.intValue() == 0 && "12".equals($F{invoice_month}))?$F{sum}:java.math.BigDecimal.ZERO]]></variableExpression>
+	</variable>
+	<variable name="v_sum_qty" class="java.math.BigDecimal" resetType="Group" resetGroup="pcode_grp" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum}]]></variableExpression>
+	</variable>
+	<group name="pcode_grp">
+		<groupExpression><![CDATA[$F{product_code}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<textField>
+					<reportElement x="0" y="0" width="43" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement>
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{product_code}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="43" y="0" width="97" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement>
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{product_category_name}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="140" y="0" width="97" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement>
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{product_name}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement x="237" y="0" width="27" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{purchased_price}.multiply( $F{conversion_rate} )]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00" isBlankWhenNull="true">
+					<reportElement x="264" y="0" width="27" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sales_price}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="291" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_01}.intValue()==0?null:$V{v_qty_7_01}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="309" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_01}.intValue()==0?null:$V{v_qty_0_01}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="326" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_02}.intValue()==0?null:$V{v_qty_7_02}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="344" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_02}.intValue()==0?null:$V{v_qty_0_02}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="361" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_03}.intValue()==0?null:$V{v_qty_7_03}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="379" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_03}.intValue()==0?null:$V{v_qty_0_03}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="414" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_04}.intValue()==0?null:$V{v_qty_0_04}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="396" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_04}.intValue()==0?null:$V{v_qty_7_04}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="449" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_05}.intValue()==0?null:$V{v_qty_0_05}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="431" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_05}.intValue()==0?null:$V{v_qty_7_05}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="466" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_06}.intValue()==0?null:$V{v_qty_7_06}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="484" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_06}.intValue()==0?null:$V{v_qty_0_06}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="501" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_07}.intValue()==0?null:$V{v_qty_7_07}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="519" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_07}.intValue()==0?null:$V{v_qty_0_07}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="554" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_08}.intValue()==0?null:$V{v_qty_0_08}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="536" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_08}.intValue()==0?null:$V{v_qty_7_08}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="589" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_09}.intValue()==0?null:$V{v_qty_0_09}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="571" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_09}.intValue()==0?null:$V{v_qty_7_09}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="624" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_10}.intValue()==0?null:$V{v_qty_0_10}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="606" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_10}.intValue()==0?null:$V{v_qty_7_10}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="641" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_11}.intValue()==0?null:$V{v_qty_7_11}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="659" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_11}.intValue()==0?null:$V{v_qty_0_11}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="676" y="0" width="18" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_7_12}.intValue()==0?null:$V{v_qty_7_12}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="694" y="0" width="17" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_qty_0_12}.intValue()==0?null:$V{v_qty_0_12}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="711" y="0" width="31" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{v_sum_qty}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="742" y="0" width="30" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{available_qty}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="pcode_grp" pattern="#,##0" isBlankWhenNull="true">
+					<reportElement x="772" y="0" width="30" height="20"/>
+					<box leftPadding="2" rightPadding="2">
+						<topPen lineWidth="0.5" lineStyle="Solid"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+						<rightPen lineWidth="0.5" lineStyle="Solid"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="Cordia New" size="7"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{onhand_qty}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="120">
+			<staticText>
+				<reportElement x="0" y="0" width="802" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รายงาน Accumulate sale and stock รายเดือน]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="15" width="237" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Client : "+$F{client_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="30" width="237" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Organization : "+$F{org_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="45" width="237" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Warehouse : "+$F{warehouse_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="60" width="237" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Year : "+$P{C_Year_ID_Info1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="75" width="237" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Purchase Price List : "+$F{po_pricelist_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="90" width="237" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Sales Price List : "+$F{so_pricelist_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="105" width="237" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement>
+					<font fontName="Cordia New" size="10"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Exchanget rate : "+$F{conversion_rate}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd-MMM-yyyy">
+				<reportElement x="742" y="105" width="60" height="15"/>
+				<textElement textAlignment="Right">
+					<font fontName="Cordia New"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="676" y="105" width="66" height="15"/>
+				<textElement textAlignment="Right">
+					<font fontName="Cordia New"/>
+				</textElement>
+				<text><![CDATA[Printed Date]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="40" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="43" height="40"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[รหัสสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="43" y="0" width="97" height="40"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[กลุ่มสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="140" y="0" width="97" height="40"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ชื่อสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="237" y="0" width="27" height="40"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ราคา
+ซื้อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="264" y="0" width="27" height="40"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ราคา
+ขาย]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="291" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ม.ค.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="772" y="0" width="30" height="40"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[On hand
+Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="742" y="0" width="30" height="40"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[Available
+Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="711" y="0" width="31" height="40"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[รวม
+ทั้งหมด]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="326" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ก.พ.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="361" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[มี.ค.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="396" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[เม.ย.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="431" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[พ.ค.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="466" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[มิ.ย.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="501" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ก.ค.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="536" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ส.ค.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="571" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ก.ย.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="606" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ต.ค.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="641" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[พ.ย.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="676" y="0" width="35" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[ธ.ค.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="291" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="309" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="344" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="326" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="361" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="379" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="396" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="414" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="431" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="449" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="466" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="484" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="501" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="519" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="536" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="554" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="571" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="589" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="624" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="606" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="641" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="659" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="676" y="20" width="18" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[7%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="694" y="20" width="17" height="20"/>
+				<box>
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5" lineStyle="Solid"/>
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Cordia New" size="7"/>
+				</textElement>
+				<text><![CDATA[0%]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+</jasperReport>
